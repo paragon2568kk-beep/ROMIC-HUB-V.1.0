@@ -1,4 +1,4 @@
--- [[ ROMIC HUB V.1.0 - ULTIMATE MERGED ]]
+-- [[ ROMIC HUB V.1.0 - FINAL COMPLETED ]]
 if _G.RomicLoaded then 
     local old = game:GetService("CoreGui"):FindFirstChild("RomicHub")
     if old then old:Destroy() end
@@ -11,12 +11,13 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 
 -- [[ SETTINGS ]]
-_G.Speed = 50        -- ความเร็ววิ่ง
-_G.UseSpeed = false  -- สถานะเปิด/ปิดวิ่งเร็ว
+_G.Speed = 50
+_G.UseSpeed = false
 _G.NoClip = false
 _G.AutoClick = false
 _G.Fly = false
 _G.FlySpeed = 50
+_G.Spin = false -- ฟังก์ชันหมุนตัว
 _G.ESP_Chams = false
 
 local FlyUp = false
@@ -26,7 +27,7 @@ local FlyDown = false
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 ScreenGui.Name = "RomicHub"
 
--- ปุ่มควบคุมบินสำหรับมือถือ
+-- Mobile Fly Controls
 local FlyControls = Instance.new("Frame", ScreenGui)
 FlyControls.Size = UDim2.new(0, 70, 0, 150); FlyControls.Position = UDim2.new(0.85, 0, 0.4, 0)
 FlyControls.BackgroundTransparency = 1; FlyControls.Visible = false
@@ -39,18 +40,17 @@ btnDown.Size = UDim2.new(1, 0, 0, 70); btnDown.Position = UDim2.new(0, 0, 0, 80)
 btnUp.MouseButton1Down:Connect(function() FlyUp = true end); btnUp.MouseButton1Up:Connect(function() FlyUp = false end)
 btnDown.MouseButton1Down:Connect(function() FlyDown = true end); btnDown.MouseButton1Up:Connect(function() FlyDown = false end)
 
--- เมนูหลัก
+-- Main Menu
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.new(0, 500, 0, 360); Main.Position = UDim2.new(0.5, -250, 0.5, -180)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15); Main.BorderSizePixel = 2; Main.BorderColor3 = Color3.fromRGB(0, 255, 255); Main.Active = true; Main.Draggable = true
 
 local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.0 | รวมทุกฟังก์ชัน"; Title.TextColor3 = Color3.fromRGB(0, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
+Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.0 | COMPLETED"; Title.TextColor3 = Color3.fromRGB(0, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
 
 local CloseBtn = Instance.new("TextButton", Title)
 CloseBtn.Size = UDim2.new(0, 40, 1, 0); CloseBtn.Position = UDim2.new(1, -40, 0, 0); CloseBtn.Text = "-"; CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0); CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Sidebar
 local TabBar = Instance.new("Frame", Main)
 TabBar.Size = UDim2.new(0, 130, 1, -40); TabBar.Position = UDim2.new(0, 0, 0, 40); TabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 
@@ -91,7 +91,7 @@ local function MakeToggle(txt, parent, varName, callback)
     Update(); b.MouseButton1Click:Connect(function() _G[varName] = not _G[varName]; Update() end)
 end
 
--- [[ หมวดวาร์ปหาคน (Teleport) ]]
+-- [[ ฟังก์ชันเสริม ]]
 local function RefreshTP()
     for _, v in pairs(Pages.TP:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
     local RefBtn = Instance.new("TextButton", Pages.TP); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อวาร์ป"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 100); RefBtn.MouseButton1Click:Connect(RefreshTP)
@@ -103,7 +103,6 @@ local function RefreshTP()
     end
 end
 
--- [[ หมวดส่องผู้เล่น (Spectate - FIXED) ]]
 local function RefreshSpectate()
     for _, v in pairs(Pages.Spectate:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
     local RefBtn = Instance.new("TextButton", Pages.Spectate); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อส่อง"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200); RefBtn.MouseButton1Click:Connect(RefreshSpectate)
@@ -116,7 +115,6 @@ local function RefreshSpectate()
     end
 end
 
--- [[ หมวดอีเว้นท์ ]]
 local function ScanEvents()
     for _, v in pairs(Pages.Event:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
     local RefEv = Instance.new("TextButton", Pages.Event); RefEv.Size = UDim2.new(1, 0, 0, 40); RefEv.Text = "🔍 ค้นหาของกิจกรรม"; RefEv.BackgroundColor3 = Color3.fromRGB(0, 150, 100); RefEv.MouseButton1Click:Connect(ScanEvents)
@@ -128,15 +126,17 @@ local function ScanEvents()
     end
 end
 
--- [[ ตั้งค่าฟังชั่นหลัก ]]
+-- [[ หมวดหมู่ปุ่ม ]]
 MakeToggle("เปิดวิ่งเร็ว (Speed)", Pages.Move, "UseSpeed")
 MakeToggle("เดินทะลุ (NoClip)", Pages.Move, "NoClip")
 MakeToggle("ออโต้คลิก", Pages.Move, "AutoClick")
 MakeToggle("ตัวเรืองแสง (Chams)", Pages.Visual, "ESP_Chams")
 MakeToggle("ระบบบิน (Fly Mobile)", Pages.Special, "Fly", function(v) FlyControls.Visible = v end)
+MakeToggle("เปิดหมุนตัว (Spin Bot)", Pages.Special, "Spin")
 
--- [[ ENGINE CORE ]]
+-- [[ ENGINE ]]
 RunService.RenderStepped:Connect(function()
+    -- ระบบบิน
     if _G.Fly and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         local Root = Player.Character.HumanoidRootPart
         if not Root:FindFirstChild("R_FlyV") then
@@ -150,6 +150,10 @@ RunService.RenderStepped:Connect(function()
     else
         pcall(function() Player.Character.HumanoidRootPart.R_FlyV:Destroy(); Player.Character.HumanoidRootPart.R_FlyG:Destroy() end)
     end
+    -- ระบบหมุนตัว
+    if _G.Spin and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        Player.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(50), 0)
+    end
 end)
 
 -- เรืองแสง
@@ -161,22 +165,21 @@ end
 for _, v in pairs(Players:GetPlayers()) do if v ~= Player then ApplyChams(v) end end
 Players.PlayerAdded:Connect(function(v) if v ~= Player then ApplyChams(v) end end)
 
--- ลูปการทำงาน (Speed & NoClip)
+-- Loop หลัก
 task.spawn(function()
     while true do task.wait(0.1)
         if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-            -- ระบบวิ่งเร็ว
             if _G.UseSpeed then Player.Character.Humanoid.WalkSpeed = _G.Speed else Player.Character.Humanoid.WalkSpeed = 16 end
-            -- ระบบเดินทะลุ
             if _G.NoClip then for _, v in pairs(Player.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
         end
     end
 end)
 
--- ปุ่มย่อเมนู
+-- Minimize UI
 local MiniBtn = Instance.new("TextButton", ScreenGui); MiniBtn.Size = UDim2.new(0, 60, 0, 30); MiniBtn.Position = UDim2.new(0, 10, 0.5, 0); MiniBtn.Text = "ROMIC"; MiniBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 255); MiniBtn.Visible = false; MiniBtn.Draggable = true
 CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false; MiniBtn.Visible = true end)
 MiniBtn.MouseButton1Click:Connect(function() Main.Visible = true; MiniBtn.Visible = false end)
 
 Pages.Move.Visible = true
 RefreshTP(); RefreshSpectate(); ScanEvents();
+
