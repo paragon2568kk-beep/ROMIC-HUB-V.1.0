@@ -1,4 +1,4 @@
--- [[ ROMIC HUB V.1.0 - FINAL COMPLETED ]]
+-- [[ ROMIC HUB V.1.1 - FULL VERSION ]]
 if _G.RomicLoaded then 
     local old = game:GetService("CoreGui"):FindFirstChild("RomicHub")
     if old then old:Destroy() end
@@ -17,8 +17,9 @@ _G.NoClip = false
 _G.AutoClick = false
 _G.Fly = false
 _G.FlySpeed = 50
-_G.Spin = false -- ฟังก์ชันหมุนตัว
+_G.Spin = false
 _G.ESP_Chams = false
+_G.DisturbTarget = nil
 
 local FlyUp = false
 local FlyDown = false
@@ -27,7 +28,7 @@ local FlyDown = false
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 ScreenGui.Name = "RomicHub"
 
--- Mobile Fly Controls
+-- Fly Controls for Mobile
 local FlyControls = Instance.new("Frame", ScreenGui)
 FlyControls.Size = UDim2.new(0, 70, 0, 150); FlyControls.Position = UDim2.new(0.85, 0, 0.4, 0)
 FlyControls.BackgroundTransparency = 1; FlyControls.Visible = false
@@ -40,13 +41,13 @@ btnDown.Size = UDim2.new(1, 0, 0, 70); btnDown.Position = UDim2.new(0, 0, 0, 80)
 btnUp.MouseButton1Down:Connect(function() FlyUp = true end); btnUp.MouseButton1Up:Connect(function() FlyUp = false end)
 btnDown.MouseButton1Down:Connect(function() FlyDown = true end); btnDown.MouseButton1Up:Connect(function() FlyDown = false end)
 
--- Main Menu
+-- Main Frame
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.new(0, 500, 0, 360); Main.Position = UDim2.new(0.5, -250, 0.5, -180)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15); Main.BorderSizePixel = 2; Main.BorderColor3 = Color3.fromRGB(0, 255, 255); Main.Active = true; Main.Draggable = true
 
 local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.0 | COMPLETED"; Title.TextColor3 = Color3.fromRGB(0, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
+Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.1 | FULL EDITION"; Title.TextColor3 = Color3.fromRGB(0, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
 
 local CloseBtn = Instance.new("TextButton", Title)
 CloseBtn.Size = UDim2.new(0, 40, 1, 0); CloseBtn.Position = UDim2.new(1, -40, 0, 0); CloseBtn.Text = "-"; CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0); CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -91,14 +92,18 @@ local function MakeToggle(txt, parent, varName, callback)
     Update(); b.MouseButton1Click:Connect(function() _G[varName] = not _G[varName]; Update() end)
 end
 
--- [[ ฟังก์ชันเสริม ]]
+-- [[ FUNCTIONS ]]
 local function RefreshTP()
-    for _, v in pairs(Pages.TP:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+    for _, v in pairs(Pages.TP:GetChildren()) do if v:IsA("TextButton") or v:IsA("Frame") then v:Destroy() end end
     local RefBtn = Instance.new("TextButton", Pages.TP); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อวาร์ป"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 100); RefBtn.MouseButton1Click:Connect(RefreshTP)
+    local StopDist = Instance.new("TextButton", Pages.TP); StopDist.Size = UDim2.new(1, 0, 0, 35); StopDist.Text = "🛑 หยุดปั่นประสาท"; StopDist.BackgroundColor3 = Color3.fromRGB(150, 0, 0); StopDist.MouseButton1Click:Connect(function() _G.DisturbTarget = nil end)
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= Player then
-            local b = Instance.new("TextButton", Pages.TP); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "วาร์ปไปหา: " .. p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45); b.TextColor3 = Color3.fromRGB(255, 255, 255)
-            b.MouseButton1Click:Connect(function() if p.Character then Player.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame end end)
+            local f = Instance.new("Frame", Pages.TP); f.Size = UDim2.new(1, 0, 0, 35); f.BackgroundTransparency = 1
+            local b1 = Instance.new("TextButton", f); b1.Size = UDim2.new(0.6, -5, 1, 0); b1.Text = "วาร์ป: "..p.DisplayName; b1.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            local b2 = Instance.new("TextButton", f); b2.Position = UDim2.new(0.6, 0, 0, 0); b2.Size = UDim2.new(0.4, 0, 1, 0); b2.Text = "🌀 ปั่น"; b2.BackgroundColor3 = Color3.fromRGB(200, 0, 200)
+            b1.MouseButton1Click:Connect(function() if p.Character then Player.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame end end)
+            b2.MouseButton1Click:Connect(function() _G.DisturbTarget = p end)
         end
     end
 end
@@ -109,7 +114,7 @@ local function RefreshSpectate()
     local selfBtn = Instance.new("TextButton", Pages.Spectate); selfBtn.Size = UDim2.new(1, 0, 0, 35); selfBtn.Text = "🏠 กลับมาดูตัวเอง"; selfBtn.BackgroundColor3 = Color3.fromRGB(150, 100, 0); selfBtn.MouseButton1Click:Connect(function() Camera.CameraSubject = Player.Character.Humanoid end)
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= Player then
-            local b = Instance.new("TextButton", Pages.Spectate); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "ส่อง: " .. p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45); b.TextColor3 = Color3.fromRGB(255, 255, 255)
+            local b = Instance.new("TextButton", Pages.Spectate); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "ส่อง: " .. p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             b.MouseButton1Click:Connect(function() if p.Character and p.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = p.Character.Humanoid end end)
         end
     end
@@ -120,13 +125,13 @@ local function ScanEvents()
     local RefEv = Instance.new("TextButton", Pages.Event); RefEv.Size = UDim2.new(1, 0, 0, 40); RefEv.Text = "🔍 ค้นหาของกิจกรรม"; RefEv.BackgroundColor3 = Color3.fromRGB(0, 150, 100); RefEv.MouseButton1Click:Connect(ScanEvents)
     for _, obj in pairs(workspace:GetDescendants()) do
         if (obj:IsA("BasePart") or obj:IsA("Model")) and (obj.Name:lower():find("event") or obj.Name:lower():find("coin")) then
-            local b = Instance.new("TextButton", Pages.Event); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "วาร์ป: "..obj.Name; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45); b.TextColor3 = Color3.fromRGB(255, 255, 255)
+            local b = Instance.new("TextButton", Pages.Event); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "วาร์ป: "..obj.Name; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             b.MouseButton1Click:Connect(function() Player.Character.HumanoidRootPart.CFrame = CFrame.new(obj:IsA("Model") and obj:GetModelCFrame().Position or obj.Position) end)
         end
     end
 end
 
--- [[ หมวดหมู่ปุ่ม ]]
+-- [[ TOGGLES ]]
 MakeToggle("เปิดวิ่งเร็ว (Speed)", Pages.Move, "UseSpeed")
 MakeToggle("เดินทะลุ (NoClip)", Pages.Move, "NoClip")
 MakeToggle("ออโต้คลิก", Pages.Move, "AutoClick")
@@ -135,8 +140,8 @@ MakeToggle("ระบบบิน (Fly Mobile)", Pages.Special, "Fly", function(
 MakeToggle("เปิดหมุนตัว (Spin Bot)", Pages.Special, "Spin")
 
 -- [[ ENGINE ]]
-RunService.RenderStepped:Connect(function()
-    -- ระบบบิน
+RunService.Heartbeat:Connect(function()
+    -- บิน
     if _G.Fly and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
         local Root = Player.Character.HumanoidRootPart
         if not Root:FindFirstChild("R_FlyV") then
@@ -150,13 +155,17 @@ RunService.RenderStepped:Connect(function()
     else
         pcall(function() Player.Character.HumanoidRootPart.R_FlyV:Destroy(); Player.Character.HumanoidRootPart.R_FlyG:Destroy() end)
     end
-    -- ระบบหมุนตัว
+    -- ปั่นประสาท
+    if _G.DisturbTarget and _G.DisturbTarget.Character and _G.DisturbTarget.Character:FindFirstChild("HumanoidRootPart") then
+        Player.Character.HumanoidRootPart.CFrame = _G.DisturbTarget.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-7,7), math.random(0,3), math.random(-7,7))
+    end
+    -- หมุนตัว
     if _G.Spin and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        Player.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(50), 0)
+        Player.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(60), 0)
     end
 end)
 
--- เรืองแสง
+-- Chams & Loops
 local function ApplyChams(p)
     local Highlight = Instance.new("Highlight")
     Highlight.FillColor = Color3.fromRGB(0, 255, 255)
@@ -165,7 +174,6 @@ end
 for _, v in pairs(Players:GetPlayers()) do if v ~= Player then ApplyChams(v) end end
 Players.PlayerAdded:Connect(function(v) if v ~= Player then ApplyChams(v) end end)
 
--- Loop หลัก
 task.spawn(function()
     while true do task.wait(0.1)
         if Player.Character and Player.Character:FindFirstChild("Humanoid") then
@@ -175,7 +183,7 @@ task.spawn(function()
     end
 end)
 
--- Minimize UI
+-- UI Control
 local MiniBtn = Instance.new("TextButton", ScreenGui); MiniBtn.Size = UDim2.new(0, 60, 0, 30); MiniBtn.Position = UDim2.new(0, 10, 0.5, 0); MiniBtn.Text = "ROMIC"; MiniBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 255); MiniBtn.Visible = false; MiniBtn.Draggable = true
 CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false; MiniBtn.Visible = true end)
 MiniBtn.MouseButton1Click:Connect(function() Main.Visible = true; MiniBtn.Visible = false end)
