@@ -1,4 +1,4 @@
--- [[ ROMIC HUB V.1.1 - FULL VERSION ]]
+-- [[ ROMIC HUB V.1.1 - RAINBOW EDITION ]]
 if _G.RomicLoaded then 
     local old = game:GetService("CoreGui"):FindFirstChild("RomicHub")
     if old then old:Destroy() end
@@ -23,6 +23,21 @@ _G.DisturbTarget = nil
 
 local FlyUp = false
 local FlyDown = false
+local RainbowLabels = {} -- เก็บ Label ที่ต้องการให้เป็นสีรุ้ง
+
+-- [[ FUNCTION TO MAKE RAINBOW EFFECT ]]
+task.spawn(function()
+    while true do
+        local hue = tick() % 5 / 5
+        local color = Color3.fromHSV(hue, 1, 1)
+        for _, label in pairs(RainbowLabels) do
+            if label and label.Parent then
+                label.TextColor3 = color
+            end
+        end
+        task.wait()
+    end
+end)
 
 -- [[ UI CONSTRUCTION ]]
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
@@ -47,7 +62,8 @@ Main.Size = UDim2.new(0, 500, 0, 360); Main.Position = UDim2.new(0.5, -250, 0.5,
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15); Main.BorderSizePixel = 2; Main.BorderColor3 = Color3.fromRGB(0, 255, 255); Main.Active = true; Main.Draggable = true
 
 local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.1 | FULL EDITION"; Title.TextColor3 = Color3.fromRGB(0, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
+Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.1 | RAINBOW EDITION"; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
+table.insert(RainbowLabels, Title)
 
 local CloseBtn = Instance.new("TextButton", Title)
 CloseBtn.Size = UDim2.new(0, 40, 1, 0); CloseBtn.Position = UDim2.new(1, -40, 0, 0); CloseBtn.Text = "-"; CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0); CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -72,6 +88,7 @@ local function AddTab(txt, page)
     local b = Instance.new("TextButton", TabBar)
     b.Size = UDim2.new(1, -10, 0, 32); b.Text = txt; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35); b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.SourceSansBold; b.TextSize = 13
     b.Position = UDim2.new(0, 5, 0, (#TabBar:GetChildren()-1)*35)
+    table.insert(RainbowLabels, b) -- ทำให้ชื่อ Tab เป็นสีรุ้ง
     b.MouseButton1Click:Connect(function() for _,p in pairs(Pages) do p.Visible = false end page.Visible = true end)
 end
 
@@ -84,9 +101,10 @@ AddTab("พิเศษ/บิน", Pages.Special)
 
 local function MakeToggle(txt, parent, varName, callback)
     local b = Instance.new("TextButton", parent); b.Size = UDim2.new(1, 0, 0, 35)
+    table.insert(RainbowLabels, b) -- ทำให้ปุ่ม Toggle เป็นสีรุ้ง
     local function Update() 
         b.Text = txt .. (_G[varName] and ": เปิด" or ": ปิด")
-        b.BackgroundColor3 = _G[varName] and Color3.fromRGB(0, 120, 200) or Color3.fromRGB(50, 50, 50)
+        b.BackgroundColor3 = _G[varName] and Color3.fromRGB(0, 80, 150) or Color3.fromRGB(40, 40, 40)
         if callback then callback(_G[varName]) end
     end
     Update(); b.MouseButton1Click:Connect(function() _G[varName] = not _G[varName]; Update() end)
@@ -95,13 +113,17 @@ end
 -- [[ FUNCTIONS ]]
 local function RefreshTP()
     for _, v in pairs(Pages.TP:GetChildren()) do if v:IsA("TextButton") or v:IsA("Frame") then v:Destroy() end end
-    local RefBtn = Instance.new("TextButton", Pages.TP); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อวาร์ป"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 100); RefBtn.MouseButton1Click:Connect(RefreshTP)
-    local StopDist = Instance.new("TextButton", Pages.TP); StopDist.Size = UDim2.new(1, 0, 0, 35); StopDist.Text = "🛑 หยุดปั่นประสาท"; StopDist.BackgroundColor3 = Color3.fromRGB(150, 0, 0); StopDist.MouseButton1Click:Connect(function() _G.DisturbTarget = nil end)
+    local RefBtn = Instance.new("TextButton", Pages.TP); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อวาร์ป"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 70); table.insert(RainbowLabels, RefBtn)
+    RefBtn.MouseButton1Click:Connect(RefreshTP)
+    
+    local StopDist = Instance.new("TextButton", Pages.TP); StopDist.Size = UDim2.new(1, 0, 0, 35); StopDist.Text = "🛑 หยุดปั่นประสาท"; StopDist.BackgroundColor3 = Color3.fromRGB(100, 0, 0); table.insert(RainbowLabels, StopDist)
+    StopDist.MouseButton1Click:Connect(function() _G.DisturbTarget = nil end)
+    
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= Player then
             local f = Instance.new("Frame", Pages.TP); f.Size = UDim2.new(1, 0, 0, 35); f.BackgroundTransparency = 1
-            local b1 = Instance.new("TextButton", f); b1.Size = UDim2.new(0.6, -5, 1, 0); b1.Text = "วาร์ป: "..p.DisplayName; b1.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-            local b2 = Instance.new("TextButton", f); b2.Position = UDim2.new(0.6, 0, 0, 0); b2.Size = UDim2.new(0.4, 0, 1, 0); b2.Text = "🌀 ปั่น"; b2.BackgroundColor3 = Color3.fromRGB(200, 0, 200)
+            local b1 = Instance.new("TextButton", f); b1.Size = UDim2.new(0.6, -5, 1, 0); b1.Text = "วาร์ป: "..p.DisplayName; b1.BackgroundColor3 = Color3.fromRGB(45, 45, 45); table.insert(RainbowLabels, b1)
+            local b2 = Instance.new("TextButton", f); b2.Position = UDim2.new(0.6, 0, 0, 0); b2.Size = UDim2.new(0.4, 0, 1, 0); b2.Text = "🌀 ปั่น"; b2.BackgroundColor3 = Color3.fromRGB(100, 0, 100); table.insert(RainbowLabels, b2)
             b1.MouseButton1Click:Connect(function() if p.Character then Player.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame end end)
             b2.MouseButton1Click:Connect(function() _G.DisturbTarget = p end)
         end
@@ -110,11 +132,15 @@ end
 
 local function RefreshSpectate()
     for _, v in pairs(Pages.Spectate:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
-    local RefBtn = Instance.new("TextButton", Pages.Spectate); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อส่อง"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200); RefBtn.MouseButton1Click:Connect(RefreshSpectate)
-    local selfBtn = Instance.new("TextButton", Pages.Spectate); selfBtn.Size = UDim2.new(1, 0, 0, 35); selfBtn.Text = "🏠 กลับมาดูตัวเอง"; selfBtn.BackgroundColor3 = Color3.fromRGB(150, 100, 0); selfBtn.MouseButton1Click:Connect(function() Camera.CameraSubject = Player.Character.Humanoid end)
+    local RefBtn = Instance.new("TextButton", Pages.Spectate); RefBtn.Size = UDim2.new(1, 0, 0, 35); RefBtn.Text = "🔄 รีเฟรชรายชื่อส่อง"; RefBtn.BackgroundColor3 = Color3.fromRGB(0, 80, 150); table.insert(RainbowLabels, RefBtn)
+    RefBtn.MouseButton1Click:Connect(RefreshSpectate)
+    
+    local selfBtn = Instance.new("TextButton", Pages.Spectate); selfBtn.Size = UDim2.new(1, 0, 0, 35); selfBtn.Text = "🏠 กลับมาดูตัวเอง"; selfBtn.BackgroundColor3 = Color3.fromRGB(100, 80, 0); table.insert(RainbowLabels, selfBtn)
+    selfBtn.MouseButton1Click:Connect(function() Camera.CameraSubject = Player.Character.Humanoid end)
+    
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= Player then
-            local b = Instance.new("TextButton", Pages.Spectate); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "ส่อง: " .. p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            local b = Instance.new("TextButton", Pages.Spectate); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "ส่อง: " .. p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45); table.insert(RainbowLabels, b)
             b.MouseButton1Click:Connect(function() if p.Character and p.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = p.Character.Humanoid end end)
         end
     end
@@ -122,10 +148,11 @@ end
 
 local function ScanEvents()
     for _, v in pairs(Pages.Event:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
-    local RefEv = Instance.new("TextButton", Pages.Event); RefEv.Size = UDim2.new(1, 0, 0, 40); RefEv.Text = "🔍 ค้นหาของกิจกรรม"; RefEv.BackgroundColor3 = Color3.fromRGB(0, 150, 100); RefEv.MouseButton1Click:Connect(ScanEvents)
+    local RefEv = Instance.new("TextButton", Pages.Event); RefEv.Size = UDim2.new(1, 0, 0, 40); RefEv.Text = "🔍 ค้นหาของกิจกรรม"; RefEv.BackgroundColor3 = Color3.fromRGB(0, 100, 70); table.insert(RainbowLabels, RefEv)
+    RefEv.MouseButton1Click:Connect(ScanEvents)
     for _, obj in pairs(workspace:GetDescendants()) do
         if (obj:IsA("BasePart") or obj:IsA("Model")) and (obj.Name:lower():find("event") or obj.Name:lower():find("coin")) then
-            local b = Instance.new("TextButton", Pages.Event); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "วาร์ป: "..obj.Name; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            local b = Instance.new("TextButton", Pages.Event); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "วาร์ป: "..obj.Name; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45); table.insert(RainbowLabels, b)
             b.MouseButton1Click:Connect(function() Player.Character.HumanoidRootPart.CFrame = CFrame.new(obj:IsA("Model") and obj:GetModelCFrame().Position or obj.Position) end)
         end
     end
@@ -185,6 +212,8 @@ end)
 
 -- UI Control
 local MiniBtn = Instance.new("TextButton", ScreenGui); MiniBtn.Size = UDim2.new(0, 60, 0, 30); MiniBtn.Position = UDim2.new(0, 10, 0.5, 0); MiniBtn.Text = "ROMIC"; MiniBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 255); MiniBtn.Visible = false; MiniBtn.Draggable = true
+table.insert(RainbowLabels, MiniBtn)
+
 CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false; MiniBtn.Visible = true end)
 MiniBtn.MouseButton1Click:Connect(function() Main.Visible = true; MiniBtn.Visible = false end)
 
