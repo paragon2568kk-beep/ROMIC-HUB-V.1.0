@@ -1,4 +1,4 @@
--- [[ ROMIC HUB V.1.4 - ALL-IN-ONE + QUICK STOP ]]
+-- [[ ROMIC HUB V.1.8 - THE ULTIMATE ALL-IN-ONE ]]
 if _G.RomicLoaded then 
     local old = game:GetService("CoreGui"):FindFirstChild("RomicHub")
     if old then old:Destroy() end
@@ -14,14 +14,13 @@ local Camera = workspace.CurrentCamera
 _G.Speed = 50
 _G.UseSpeed = false
 _G.NoClip = false
-_G.AutoClick = false
 _G.Fly = false
 _G.FlySpeed = 50
 _G.Spin = false
-_G.ESP_Chams = false
 _G.DisturbTarget = nil
-_G.GodMode = false
 _G.FlingTarget = nil
+_G.FlingAll = false
+_G.SavedPos = nil 
 
 local FlyUp = false
 local FlyDown = false
@@ -45,30 +44,38 @@ end)
 local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 ScreenGui.Name = "RomicHub"
 
--- ปุ่มหยุดปั่นด่วน (QUICK STOP) - แยกอิสระลากได้
+-- 🔴 ปุ่มหยุดปั่นด่วน (QUICK STOP)
 local QuickStop = Instance.new("TextButton", ScreenGui)
-QuickStop.Size = UDim2.new(0, 100, 0, 40); QuickStop.Position = UDim2.new(0, 10, 0.5, 40)
+QuickStop.Size = UDim2.new(0, 110, 0, 40); QuickStop.Position = UDim2.new(0, 10, 0.5, 45)
 QuickStop.Text = "🛑 STOP TROLL"; QuickStop.BackgroundColor3 = Color3.fromRGB(150, 0, 0); QuickStop.TextColor3 = Color3.fromRGB(255, 255, 255)
 QuickStop.Font = Enum.Font.SourceSansBold; QuickStop.TextSize = 14; QuickStop.Draggable = true; QuickStop.BorderSizePixel = 2; QuickStop.BorderColor3 = Color3.fromRGB(255, 255, 255)
 
 QuickStop.MouseButton1Click:Connect(function()
-    _G.DisturbTarget = nil; _G.FlingTarget = nil
+    _G.DisturbTarget = nil; _G.FlingTarget = nil; _G.FlingAll = false
+    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "ROMIC HUB", Text = "หยุดการทำงานทั้งหมด!", Duration = 1.5})
 end)
 
--- Fly Controls
-local FlyControls = Instance.new("Frame", ScreenGui)
-FlyControls.Size = UDim2.new(0, 70, 0, 150); FlyControls.Position = UDim2.new(0.85, 0, 0.4, 0); FlyControls.BackgroundTransparency = 1; FlyControls.Visible = false
-local btnUp = Instance.new("TextButton", FlyControls); btnUp.Size = UDim2.new(1, 0, 0, 70); btnUp.Text = "▲"; btnUp.BackgroundColor3 = Color3.fromRGB(0, 255, 120); btnUp.TextSize = 40
-local btnDown = Instance.new("TextButton", FlyControls); btnDown.Size = UDim2.new(1, 0, 0, 70); btnDown.Position = UDim2.new(0, 0, 0, 80); btnDown.Text = "▼"; btnDown.BackgroundColor3 = Color3.fromRGB(255, 60, 60); btnDown.TextSize = 40
-btnUp.MouseButton1Down:Connect(function() FlyUp = true end); btnUp.MouseButton1Up:Connect(function() FlyUp = false end)
-btnDown.MouseButton1Down:Connect(function() FlyDown = true end); btnDown.MouseButton1Up:Connect(function() FlyDown = false end)
+-- 🏠 ปุ่มวาร์ปกลับด่วน (QUICK GO BACK)
+local QuickBack = Instance.new("TextButton", ScreenGui)
+QuickBack.Size = UDim2.new(0, 110, 0, 40); QuickBack.Position = UDim2.new(0, 10, 0.5, 90)
+QuickBack.Text = "🏠 GO BACK"; QuickBack.BackgroundColor3 = Color3.fromRGB(0, 80, 150); QuickBack.TextColor3 = Color3.fromRGB(255, 255, 255)
+QuickBack.Font = Enum.Font.SourceSansBold; QuickBack.TextSize = 14; QuickBack.Draggable = true; QuickBack.BorderSizePixel = 2; QuickBack.BorderColor3 = Color3.fromRGB(255, 255, 255)
 
--- Main Frame
+QuickBack.MouseButton1Click:Connect(function()
+    if _G.SavedPos and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        Player.Character.HumanoidRootPart.CFrame = _G.SavedPos
+    else
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "ROMIC HUB", Text = "ยังไม่ได้เซฟจุด!", Duration = 1.5})
+    end
+end)
+
+-- Main UI Frame
 local Main = Instance.new("Frame", ScreenGui)
-Main.Size = UDim2.new(0, 500, 0, 360); Main.Position = UDim2.new(0.5, -250, 0.5, -180); Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15); Main.Active = true; Main.Draggable = true
+Main.Size = UDim2.new(0, 500, 0, 360); Main.Position = UDim2.new(0.5, -250, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15); Main.BorderSizePixel = 2; Main.BorderColor3 = Color3.fromRGB(0, 255, 255); Main.Active = true; Main.Draggable = true
 
 local Title = Instance.new("TextLabel", Main)
-Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.4 | FINAL MERGE"; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
+Title.Size = UDim2.new(1, 0, 0, 40); Title.Text = "ROMIC HUB V.1.8 | THE ULTIMATE"; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25); Title.Font = Enum.Font.SourceSansBold; Title.TextSize = 20
 table.insert(RainbowLabels, Title)
 
 local CloseBtn = Instance.new("TextButton", Title)
@@ -84,84 +91,67 @@ local function CreatePage(name)
     return f
 end
 
-local Pages = { Move = CreatePage("Move"), Visual = CreatePage("Visual"), TP = CreatePage("TP"), Troll = CreatePage("Troll"), Spectate = CreatePage("Spectate"), Special = CreatePage("Special") }
+local Pages = { Move = CreatePage("Move"), TP = CreatePage("TP"), Troll = CreatePage("Troll"), SavePos = CreatePage("SavePos"), Special = CreatePage("Special") }
 
 local function AddTab(txt, page)
-    local b = Instance.new("TextButton", TabBar); b.Size = UDim2.new(1, -10, 0, 32); b.Text = txt; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35); b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    local b = Instance.new("TextButton", TabBar); b.Size = UDim2.new(1, -10, 0, 32); b.Text = txt; b.BackgroundColor3 = Color3.fromRGB(35, 35, 35); b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.SourceSansBold
     b.Position = UDim2.new(0, 5, 0, (#TabBar:GetChildren()-1)*35); table.insert(RainbowLabels, b)
     b.MouseButton1Click:Connect(function() for _,p in pairs(Pages) do p.Visible = false end page.Visible = true end)
 end
 
-AddTab("เดิน/คลิก", Pages.Move); AddTab("การมองเห็น", Pages.Visual); AddTab("วาร์ปหาคน", Pages.TP); AddTab("ปั่นผู้เล่น", Pages.Troll); AddTab("ส่องผู้เล่น", Pages.Spectate); AddTab("พิเศษ/บิน", Pages.Special)
+AddTab("เดิน/คลิก", Pages.Move); AddTab("วาร์ปหาคน", Pages.TP); AddTab("ปั่นผู้เล่น", Pages.Troll); AddTab("ตั้งค่าจุดวาร์ป", Pages.SavePos); AddTab("พิเศษ/บิน", Pages.Special)
 
 -- [[ SYSTEMS ]]
+local FlingAllBtn = Instance.new("TextButton", Pages.Troll)
+FlingAllBtn.Size = UDim2.new(1, 0, 0, 50); FlingAllBtn.Text = "🚀 ปั่นทุกคน (Fling All)"; FlingAllBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0); table.insert(RainbowLabels, FlingAllBtn)
+FlingAllBtn.MouseButton1Click:Connect(function() _G.FlingAll = not _G.FlingAll FlingAllBtn.Text = _G.FlingAll and "🔥 กำลังปั่นทุกคน..." or "🚀 ปั่นทุกคน (Fling All)" end)
+
 local function RefreshTroll()
-    for _, v in pairs(Pages.Troll:GetChildren()) do if v:IsA("TextButton") or v:IsA("Frame") then v:Destroy() end end
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= Player then
             local f = Instance.new("Frame", Pages.Troll); f.Size = UDim2.new(1, 0, 0, 40); f.BackgroundTransparency = 1
-            local bF = Instance.new("TextButton", f); bF.Size = UDim2.new(0.5, -5, 1, 0); bF.Text = "🚀 ผลัก: "..p.DisplayName; bF.BackgroundColor3 = Color3.fromRGB(150, 50, 0); table.insert(RainbowLabels, bF)
-            local bD = Instance.new("TextButton", f); bD.Position = UDim2.new(0.5, 5, 0, 0); bD.Size = UDim2.new(0.5, -5, 1, 0); bD.Text = "🌀 ปั่น"; bD.BackgroundColor3 = Color3.fromRGB(100, 0, 150); table.insert(RainbowLabels, bD)
-            bF.MouseButton1Click:Connect(function() _G.FlingTarget = p end)
-            bD.MouseButton1Click:Connect(function() _G.DisturbTarget = p end)
+            local bF = Instance.new("TextButton", f); bF.Size = UDim2.new(0.5, -5, 1, 0); bF.Text = "🚀 ผลัก: "..p.DisplayName; bF.BackgroundColor3 = Color3.fromRGB(100, 50, 0); table.insert(RainbowLabels, bF)
+            local bD = Instance.new("TextButton", f); bD.Position = UDim2.new(0.5, 5, 0, 0); bD.Size = UDim2.new(0.5, -5, 1, 0); bD.Text = "🌀 ปั่น"; bD.BackgroundColor3 = Color3.fromRGB(80, 0, 120); table.insert(RainbowLabels, bD)
+            bF.MouseButton1Click:Connect(function() _G.FlingTarget = p end); bD.MouseButton1Click:Connect(function() _G.DisturbTarget = p end)
         end
     end
 end
 
-local function RefreshTP()
-    for _, v in pairs(Pages.TP:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= Player then
-            local b = Instance.new("TextButton", Pages.TP); b.Size = UDim2.new(1, 0, 0, 30); b.Text = "วาร์ปหา: "..p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(45, 45, 45); table.insert(RainbowLabels, b)
-            b.MouseButton1Click:Connect(function() if p.Character then Player.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame end end)
-        end
-    end
-end
+local SaveBtn = Instance.new("TextButton", Pages.SavePos); SaveBtn.Size = UDim2.new(1, 0, 0, 50); SaveBtn.Text = "📍 เซฟตำแหน่งปัจจุบัน"; SaveBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 0); table.insert(RainbowLabels, SaveBtn)
+SaveBtn.MouseButton1Click:Connect(function() if Player.Character then _G.SavedPos = Player.Character.HumanoidRootPart.CFrame end end)
 
 -- [[ CORE ENGINE ]]
 RunService.Heartbeat:Connect(function()
+    local Root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if not Root then return end
+    
     if _G.FlingTarget and _G.FlingTarget.Character and _G.FlingTarget.Character:FindFirstChild("HumanoidRootPart") then
-        local Root = Player.Character.HumanoidRootPart
-        local T_Root = _G.FlingTarget.Character.HumanoidRootPart
-        Root.CFrame = T_Root.CFrame * CFrame.new(math.random(-1,1), 0, math.random(-1,1))
+        Root.CFrame = _G.FlingTarget.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-1,1), 0, math.random(-1,1))
         Root.Velocity = Vector3.new(999999, 999999, 999999)
-    end
-    if _G.Fly and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        local Root = Player.Character.HumanoidRootPart
-        if not Root:FindFirstChild("R_FlyV") then
-            local bv = Instance.new("BodyVelocity", Root); bv.Name = "R_FlyV"; bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-            local bg = Instance.new("BodyGyro", Root); bg.Name = "R_FlyG"; bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9); bg.P = 9e4
+    elseif _G.FlingAll then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                Root.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-1,1), 0, math.random(-1,1))
+                Root.Velocity = Vector3.new(999999, 999999, 999999)
+            end
         end
-        Root.R_FlyG.CFrame = Camera.CFrame
-        local vel = Player.Character.Humanoid.MoveDirection * _G.FlySpeed
-        if FlyUp then vel = vel + Vector3.new(0, _G.FlySpeed, 0) elseif FlyDown then vel = vel + Vector3.new(0, -_G.FlySpeed, 0) end
-        Root.R_FlyV.Velocity = vel
-    else
-        pcall(function() Player.Character.HumanoidRootPart.R_FlyV:Destroy(); Player.Character.HumanoidRootPart.R_FlyG:Destroy() end)
+    elseif _G.DisturbTarget and _G.DisturbTarget.Character and _G.DisturbTarget.Character:FindFirstChild("HumanoidRootPart") then
+        Root.CFrame = _G.DisturbTarget.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-7,7), math.random(0,3), math.random(-7,7))
     end
-    if _G.DisturbTarget and _G.DisturbTarget.Character and _G.DisturbTarget.Character:FindFirstChild("HumanoidRootPart") then
-        Player.Character.HumanoidRootPart.CFrame = _G.DisturbTarget.Character.HumanoidRootPart.CFrame * CFrame.new(math.random(-7,7), math.random(0,3), math.random(-7,7))
-    end
-    if _G.Spin and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        Player.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(60), 0)
-    end
+    
+    if _G.Spin then Root.CFrame = Root.CFrame * CFrame.Angles(0, math.rad(60), 0) end
 end)
 
-local function MakeToggle(txt, parent, varName, callback)
+local function MakeToggle(txt, parent, varName)
     local b = Instance.new("TextButton", parent); b.Size = UDim2.new(1, 0, 0, 35); table.insert(RainbowLabels, b)
-    local function Update() 
-        b.Text = txt .. (_G[varName] and ": เปิด" or ": ปิด")
-        b.BackgroundColor3 = _G[varName] and Color3.fromRGB(0, 80, 150) or Color3.fromRGB(40, 40, 40)
-        if callback then callback(_G[varName]) end
-    end
-    Update(); b.MouseButton1Click:Connect(function() _G[varName] = not _G[varName]; Update() end)
+    local function Update() b.Text = txt..(_G[varName] and ": เปิด" or ": ปิด") b.BackgroundColor3 = _G[varName] and Color3.fromRGB(0, 100, 200) or Color3.fromRGB(40, 40, 40) end
+    Update(); b.MouseButton1Click:Connect(function() _G[varName] = not _G[varName] Update() end)
 end
 
-MakeToggle("เปิดวิ่งเร็ว", Pages.Move, "UseSpeed"); MakeToggle("เดินทะลุ", Pages.Move, "NoClip")
-MakeToggle("ระบบบิน", Pages.Special, "Fly", function(v) FlyControls.Visible = v end); MakeToggle("หมุนตัว", Pages.Special, "Spin")
+MakeToggle("เดินทะลุ (NoClip)", Pages.Move, "NoClip"); MakeToggle("ระบบหมุนตัว", Pages.Special, "Spin")
 
 local MiniBtn = Instance.new("TextButton", ScreenGui); MiniBtn.Size = UDim2.new(0, 60, 0, 30); MiniBtn.Position = UDim2.new(0, 10, 0.5, 0); MiniBtn.Text = "ROMIC"; MiniBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 255); MiniBtn.Visible = false; MiniBtn.Draggable = true; table.insert(RainbowLabels, MiniBtn)
 CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false; MiniBtn.Visible = true end); MiniBtn.MouseButton1Click:Connect(function() Main.Visible = true; MiniBtn.Visible = false end)
 
-RefreshTroll(); RefreshTP(); Pages.Move.Visible = true
+RefreshTroll(); Pages.Move.Visible = true
 
