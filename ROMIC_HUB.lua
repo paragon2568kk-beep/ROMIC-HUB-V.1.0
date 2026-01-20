@@ -30,8 +30,6 @@ local XrayBtn = Instance.new("TextButton")
 local espEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
-local AntiTouchBtn = Instance.new("TextButton") -- สร้างตัวแปรปุ่มใหม่
-local antiTouchEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
