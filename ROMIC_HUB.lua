@@ -45,6 +45,47 @@ FlyHomeBtn.Draggable = true
 FlyHomeBtn.Active = true
 Instance.new("UICorner", FlyHomeBtn)
 
+-- [[ แก้ไขส่วนปุ่ม Hover ให้แยกออกมา ]]
+SlowFlyBtn.Parent = ScreenGui -- ย้ายออกจากเมนูหลักมาที่หน้าจอ
+SlowFlyBtn.Text = "Hover: OFF"
+SlowFlyBtn.Size = UDim2.new(0, 110, 0, 50)
+SlowFlyBtn.Position = UDim2.new(0, 10, 0, 210) -- ตำแหน่งใต้ปุ่ม FLY HOME
+SlowFlyBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+SlowFlyBtn.TextColor3 = Color3.new(1, 1, 1)
+SlowFlyBtn.Draggable = true -- ทำให้ลากปุ่มไปมาได้
+SlowFlyBtn.Active = true
+Instance.new("UICorner", SlowFlyBtn)
+
+-- ฟังก์ชั่นการทำงาน (ดึงค่าจาก Box ในเมนูหลักมาใช้)
+local isHovering = false
+SlowFlyBtn.MouseButton1Click:Connect(function()
+    isHovering = not isHovering
+    SlowFlyBtn.Text = isHovering and "Hover: ON" or "Hover: OFF"
+    SlowFlyBtn.BackgroundColor3 = isHovering and Color3.fromRGB(0, 200, 255) or Color3.fromRGB(0, 120, 200)
+    
+    local char = lp.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    
+    if isHovering and root then
+        local bv = Instance.new("BodyVelocity", root)
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        
+        task.spawn(function()
+            while isHovering and root.Parent do
+                -- ดึงค่าความสูงและความเร็วจาก TextBox ใน MainFrame
+                local h = tonumber(HeightBox.Text) or 80
+                local s = tonumber(FlySpeedBox.Text) or 100
+                
+                local yVel = (root.Position.Y < h) and 180 or (root.Position.Y > h+5 and -120 or 0)
+                bv.Velocity = (char.Humanoid.MoveDirection * s) + Vector3.new(0, yVel, 0)
+                task.wait()
+            end
+            if bv then bv:Destroy() end
+        end)
+    end
+end)
+
+
 -- [[ 3. MAIN MENU ]]
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
