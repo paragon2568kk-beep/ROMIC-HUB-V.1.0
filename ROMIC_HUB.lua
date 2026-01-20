@@ -37,52 +37,6 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "Brainrot_GodMode_V12_6"
 
--- [[ 3. ส่วนหน้าปกผู้สร้าง (Intro) ]]
-local CreatorId = 2811728173 -- ตรวจสอบว่าเลข ID ถูกต้อง (Exser68)
-local success, creatorIcon = pcall(function()
-    return game:GetService("Players"):GetUserThumbnailAsync(CreatorId, Enum.ThumbnailType.Headshot, Enum.ThumbnailSize.Size420x420)
-end)
-
--- สร้างหน้าจอ Intro
-local IntroFrame = Instance.new("Frame")
-IntroFrame.Name = "IntroExser"
-IntroFrame.Parent = ScreenGui -- ต้องวางหลังบรรทัดที่ 37
-IntroFrame.Size = UDim2.new(1, 0, 1, 0)
-IntroFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-IntroFrame.ZIndex = 1000
-
-local CreatorImg = Instance.new("ImageLabel")
-CreatorImg.Parent = IntroFrame
-CreatorImg.Size = UDim2.new(0, 180, 0, 180)
-CreatorImg.Position = UDim2.new(0.5, -90, 0.2, 0)
-CreatorImg.Image = success and creatorIcon or "" -- ถ้าดึงรูปไม่ได้จะไม่ทำให้สคริปต์ค้าง
-CreatorImg.BackgroundTransparency = 1
-Instance.new("UICorner", CreatorImg).CornerRadius = UDim.new(1, 0)
-
-local CreatorName = Instance.new("TextLabel")
-CreatorName.Parent = IntroFrame
-CreatorName.Size = UDim2.new(1, 0, 0, 50)
-CreatorName.Position = UDim2.new(0, 0, 0.5, 0)
-CreatorName.BackgroundTransparency = 1
-CreatorName.Text = "Exser68"
-CreatorName.TextColor3 = Color3.new(1, 1, 1)
-CreatorName.TextSize = 35
-CreatorName.Font = Enum.Font.GothamBold
-
-local NextBtn = Instance.new("TextButton")
-NextBtn.Parent = IntroFrame
-NextBtn.Size = UDim2.new(0, 200, 0, 50)
-NextBtn.Position = UDim2.new(0.5, -100, 0.7, 0)
-NextBtn.Text = "ถัดไป"
-NextBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-NextBtn.TextColor3 = Color3.new(1, 1, 1)
-NextBtn.TextSize = 20
-Instance.new("UICorner", NextBtn)
-
-NextBtn.MouseButton1Click:Connect(function()
-    IntroFrame:Destroy() -- ลบหน้า Intro เพื่อโชว์ปุ่ม MENU
-end)
-
 -- [[ FPS COUNTER ]]
 FPSLabel.Parent = ScreenGui
 FPSLabel.Size = UDim2.new(0, 100, 0, 30)
