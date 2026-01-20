@@ -268,3 +268,22 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     InfJumpBtn.Text = active and "InfJump: ON" or "InfJump: OFF"
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
 end)
+-- [[ ระบบ Auto Clicker สำหรับมือถือ/PC ]]
+local autoClickActive = false
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+AutoClickBtn.MouseButton1Click:Connect(function()
+    autoClickActive = not autoClickActive
+    AutoClickBtn.Text = autoClickActive and "Auto Clicker (ON)" or "Auto Clicker (OFF)"
+    AutoClickBtn.BackgroundColor3 = autoClickActive and Color3.fromRGB(255, 150, 0) or Color3.fromRGB(200, 100, 0)
+    
+    task.spawn(function()
+        while autoClickActive do
+            -- จำลองการกดหน้าจอ/คลิกเมาส์ที่ตำแหน่งกลางจอ
+            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0) -- กดลง
+            task.wait(0.01) -- ความเร็วในการคลิก (ปรับน้อยลง = เร็วขึ้น)
+            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0) -- ปล่อย
+            task.wait(0.05) -- ระยะห่างระหว่างคลิก
+        end
+    end)
+end)
