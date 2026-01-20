@@ -268,6 +268,7 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     InfJumpBtn.Text = active and "InfJump: ON" or "InfJump: OFF"
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
 end)
+
 -- [[ ระบบ Auto Clicker สำหรับมือถือ/PC ]]
 local autoClickActive = false
 local VirtualInputManager = game:GetService("VirtualInputManager")
