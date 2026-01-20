@@ -37,31 +37,29 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "Brainrot_GodMode_V12_6"
 
--- [[ ระบบหน้าปกผู้สร้าง ]]
-local CreatorId = 2811728173 -- ใส่ ID ของคุณ Exser68 ตรงนี้
-local creatorIcon = game:GetService("Players"):GetUserThumbnailAsync(CreatorId, Enum.ThumbnailType.Headshot, Enum.ThumbnailSize.Size420x420)
+-- [[ 3. ส่วนหน้าปกผู้สร้าง (Intro) ]]
+local CreatorId = 2811728173 -- ตรวจสอบว่าเลข ID ถูกต้อง (Exser68)
+local success, creatorIcon = pcall(function()
+    return game:GetService("Players"):GetUserThumbnailAsync(CreatorId, Enum.ThumbnailType.Headshot, Enum.ThumbnailSize.Size420x420)
+end)
 
+-- สร้างหน้าจอ Intro
 local IntroFrame = Instance.new("Frame")
-local CreatorImg = Instance.new("ImageLabel")
-local CreatorName = Instance.new("TextLabel")
-local NextBtn = Instance.new("TextButton")
-
--- 1. พื้นหลังหน้า Intro
 IntroFrame.Name = "IntroExser"
-IntroFrame.Parent = ScreenGui
+IntroFrame.Parent = ScreenGui -- ต้องวางหลังบรรทัดที่ 37
 IntroFrame.Size = UDim2.new(1, 0, 1, 0)
 IntroFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-IntroFrame.ZIndex = 1000 -- อยู่บนสุด
+IntroFrame.ZIndex = 1000
 
--- 2. รูปตัวละครผู้สร้าง (Exser68)
+local CreatorImg = Instance.new("ImageLabel")
 CreatorImg.Parent = IntroFrame
 CreatorImg.Size = UDim2.new(0, 180, 0, 180)
 CreatorImg.Position = UDim2.new(0.5, -90, 0.2, 0)
-CreatorImg.Image = creatorIcon
+CreatorImg.Image = success and creatorIcon or "" -- ถ้าดึงรูปไม่ได้จะไม่ทำให้สคริปต์ค้าง
 CreatorImg.BackgroundTransparency = 1
 Instance.new("UICorner", CreatorImg).CornerRadius = UDim.new(1, 0)
 
--- 3. ชื่อผู้สร้าง
+local CreatorName = Instance.new("TextLabel")
 CreatorName.Parent = IntroFrame
 CreatorName.Size = UDim2.new(1, 0, 0, 50)
 CreatorName.Position = UDim2.new(0, 0, 0.5, 0)
@@ -71,7 +69,7 @@ CreatorName.TextColor3 = Color3.new(1, 1, 1)
 CreatorName.TextSize = 35
 CreatorName.Font = Enum.Font.GothamBold
 
--- 4. ปุ่มถัดไปเพื่อเข้าเมนู
+local NextBtn = Instance.new("TextButton")
 NextBtn.Parent = IntroFrame
 NextBtn.Size = UDim2.new(0, 200, 0, 50)
 NextBtn.Position = UDim2.new(0.5, -100, 0.7, 0)
@@ -81,9 +79,8 @@ NextBtn.TextColor3 = Color3.new(1, 1, 1)
 NextBtn.TextSize = 20
 Instance.new("UICorner", NextBtn)
 
--- 5. ฟังก์ชันพอกดปุ่ม "ถัดไป"
 NextBtn.MouseButton1Click:Connect(function()
-    IntroFrame:Destroy() -- ลบหน้าปกทิ้งเพื่อเข้าสู่เมนู
+    IntroFrame:Destroy() -- ลบหน้า Intro เพื่อโชว์ปุ่ม MENU
 end)
 
 -- [[ FPS COUNTER ]]
