@@ -271,28 +271,31 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
 end)
 
--- [[ ระบบ Auto Clicker สำหรับมือถือ (แก้บั๊กเดินไม่ได้) ]]
-local autoClickActive = false
-local vim = game:GetService("VirtualInputManager")
+-- [[ ระบบ Auto Collect (เก็บของรอบตัวอัตโนมัติ) ]]
+local autoCollectActive = false
 
 AutoClickBtn.MouseButton1Click:Connect(function()
-    autoClickActive = not autoClickActive
-    AutoClickBtn.Text = autoClickActive and "Auto Click: ON" or "Auto Click: OFF"
-    AutoClickBtn.BackgroundColor3 = autoClickActive and Color3.fromRGB(255, 150, 0) or Color3.fromRGB(200, 100, 0)
+    autoCollectActive = not autoCollectActive
+    AutoClickBtn.Text = autoCollectActive and "Auto Collect: ON" or "Auto Collect: OFF"
+    AutoClickBtn.BackgroundColor3 = autoCollectActive and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 100, 0)
     
-    if autoClickActive then
+    if autoCollectActive then
         task.spawn(function()
-            while autoClickActive do
-                local vps = workspace.CurrentCamera.ViewportSize
-                local x, y = vps.X / 2, vps.Y / 2
-                
-                -- ใช้ SendTouchEvent แทน MouseEvent เพื่อกันรูปเมาส์ขึ้น
-                -- 0 คือเริ่มจิ้ม, 1 คือจิ้มค้าง/ขยับ, 2 คือปล่อยนิ้ว
-                vim:SendTouchEvent(0, 0, x, y) -- เริ่มจิ้ม
-                task.wait(0.01)
-                vim:SendTouchEvent(0, 2, x, y) -- ปล่อยนิ้ว
-                
-                task.wait(0.05) -- ปรับความเร็วตรงนี้
+            while autoCollectActive do
+                -- วนลูปหา ProximityPrompt ทุกอย่างที่อยู่ในระยะรอบตัว
+                for _, prompt in pairs(game:GetService("ProximityPromptService"):GetDescendants()) do
+                    if prompt:IsA("ProximityPrompt") then
+                        -- ตรวจสอบระยะห่าง (ถ้าอยู่ใกล้พอจะสั่งกดทันที)
+                        local char = lp.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            local dist = (char.HumanoidRootPart.Position - prompt.Parent:GetModelCFrame().p).Magnitude
+                            if dist <= (prompt.MaxActivationDistance + 5) then
+                                fireproximityprompt(prompt) -- สั่งให้ปุ่มทำงานทันที
+                            end
+                        end
+                    end
+                end
+                task.wait(0.1) -- ความถี่ในการสแกนหาของรอบตัว
             end
         end)
     end
