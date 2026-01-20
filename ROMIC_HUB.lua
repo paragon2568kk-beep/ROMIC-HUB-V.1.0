@@ -152,6 +152,17 @@ FlyHomeBtn.MouseButton1Click:Connect(function()
     FlyHomeBtn.Text = "FLY HOME"
 end)
 
+-- [[ ตั้งค่าปุ่ม X-Ray ลอยตัว ]]
+XrayBtn.Parent = ScreenGui -- ใช้ชื่อ ScreenGui ตามในสคริปต์หลักของคุณ
+XrayBtn.Text = "X-Ray: OFF"
+XrayBtn.Size = UDim2.new(0, 110, 0, 50) -- ขนาดเท่ากับปุ่ม Fly Home
+XrayBtn.Position = UDim2.new(0, 10, 0, 270) -- อยู่ใต้ปุ่ม Hover (ระยะห่าง 270)
+XrayBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 200) -- สีม่วง
+XrayBtn.TextColor3 = Color3.new(1, 1, 1)
+XrayBtn.Draggable = true -- สำคัญ: ทำให้ลากปุ่มไปมาได้บนมือถือ
+XrayBtn.Active = true
+Instance.new("UICorner", XrayBtn)
+
 -- [[ ฟังก์ชัน HOVER ]]
 local isHovering = false
 SlowFlyBtn.MouseButton1Click:Connect(function()
@@ -228,17 +239,21 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
     end
 end)
 
+local xrayActive = false
 XrayBtn.MouseButton1Click:Connect(function()
-    local xrayActive = XrayBtn.Text:find("OFF")
+    xrayActive = not xrayActive
     XrayBtn.Text = xrayActive and "X-Ray: ON" or "X-Ray: OFF"
     XrayBtn.BackgroundColor3 = xrayActive and Color3.fromRGB(255, 0, 255) or Color3.fromRGB(150, 0, 200)
+    
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("BasePart") and not obj:IsDescendantOf(lp.Character) then
             if xrayActive then
                 if not obj:FindFirstChild("OriginalTrans") then
-                    local v = Instance.new("NumberValue", obj); v.Name = "OriginalTrans"; v.Value = obj.Transparency
+                    local v = Instance.new("NumberValue", obj)
+                    v.Name = "OriginalTrans"
+                    v.Value = obj.Transparency
                 end
-                obj.Transparency = 0.5
+                obj.Transparency = 0.5 -- ระดับความใส
             else
                 local v = obj:FindFirstChild("OriginalTrans")
                 obj.Transparency = v and v.Value or 0
@@ -247,11 +262,3 @@ XrayBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-            lp.Character.Humanoid.WalkSpeed = tonumber(SpeedBox.Text) or 16
-        end
-    end
-end)
