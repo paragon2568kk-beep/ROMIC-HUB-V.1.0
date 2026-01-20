@@ -140,7 +140,6 @@ CreateBtn(InfJumpBtn, "กระโดดบนอากาศ (OFF)", Color3.fr
 CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
-CreateBtn(AutoClickBtn, "Auto Clicker (OFF)", Color3.fromRGB(200, 100, 0))
 
 -- [[ ฟังก์ชั่นพิเศษ: คลิกเดียวเก็บของ (Instant Proximity) ]]
 local fastClickActive = false
