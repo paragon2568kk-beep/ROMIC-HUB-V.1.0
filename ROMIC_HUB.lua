@@ -27,6 +27,9 @@ local NoclipBtn = Instance.new("TextButton")
 local InfJumpBtn = Instance.new("TextButton")
 local FastClickBtn = Instance.new("TextButton")
 local XrayBtn = Instance.new("TextButton")
+local espEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
+local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
+local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -273,4 +276,55 @@ task.spawn(function()
             end
         end)
     end
+end)
+
+-- [[ 1. ตัวแปรเก็บสถานะ (วางไว้ก่อนฟังก์ชัน) ]]
+local espEnabled = false -- ตัวแปรเช็คว่าเปิดหรือปิด
+
+-- [[ 2. ฟังก์ชันหลักสำหรับทำให้เรืองแสง ]]
+local function ApplyHighlight(char)
+    -- ตรวจสอบว่ามี Highlight อยู่แล้วหรือยัง เพื่อไม่ให้สร้างซ้ำจนแลค
+    if not char:FindFirstChild("ESPHighlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ESPHighlight"
+        highlight.Parent = char
+        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- สีแดงเรืองแสง
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- เส้นขอบขาว
+        highlight.FillTransparency = 0.5 -- ความเข้มของสี
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- ทำให้มองทะลุกำแพงได้
+    end
+end
+
+-- [[ 3. เชื่อมต่อกับปุ่ม XrayBtn ที่มีอยู่แล้ว ]]
+XrayBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled -- สลับสถานะ true/false
+    
+    -- เปลี่ยนข้อความที่ปุ่มเพื่อบอกสถานะ
+    XrayBtn.Text = espEnabled and "เรืองแสง: ON" or "เรืองแสง: OFF"
+    
+    if espEnabled then
+        -- ถ้าเปิด: ใส่แสงให้ทุกคนในเซิร์ฟเวอร์
+        for _, p in pairs(game.Players:GetPlayers()) do
+            if p ~= lp and p.Character then
+                ApplyHighlight(p.Character)
+            end
+        end
+    else
+        -- ถ้าปิด: ลบแสงออกให้หมด
+        for _, p in pairs(game.Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("ESPHighlight") then
+                p.Character.ESPHighlight:Destroy()
+            end
+        end
+    end
+end)
+
+-- [[ 4. ระบบตรวจจับคนเกิดใหม่ (เพื่อให้แสงไม่หายตอนเขาตาย) ]]
+game.Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function(char)
+        if espEnabled then
+            task.wait(0.5) -- รอตัวละครโหลดเสร็จ
+            ApplyHighlight(char)
+        end
+    end)
 end)
