@@ -25,8 +25,7 @@ local UIListLayout = Instance.new("UIListLayout")
 local ScrollingFrame = Instance.new("ScrollingFrame")
 local NoclipBtn = Instance.new("TextButton")
 local InfJumpBtn = Instance.new("TextButton")
-local FastClickBtn = Instance.new("TextButton") -- ปุ่มเปิดระบบคลิกเก็บของ
-local XrayBtn = Instance.new("TextButton")      -- เพิ่มปุ่มนี้เข้าไปใหม่
+local FastClickBtn = Instance.new("TextButton")
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -142,7 +141,6 @@ CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 CreateBtn(AutoClickBtn, "Auto Click: OFF", Color3.fromRGB(200, 100, 0))
-CreateBtn(XrayBtn, "X-Ray: OFF", Color3.fromRGB(150, 0, 200))
 
 -- [[ ฟังก์ชั่นพิเศษ: คลิกเดียวเก็บของ (Instant Proximity) ]]
 local fastClickActive = false
@@ -270,22 +268,4 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     local active = InfJumpBtn.Text:find("OFF")
     InfJumpBtn.Text = active and "InfJump: ON" or "InfJump: OFF"
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
-end)
-
--- [[ ฟังก์ชันสำหรับปุ่ม X-Ray ]]
-local xrayActive = false
-XrayBtn.MouseButton1Click:Connect(function()
-    xrayActive = not xrayActive
-    XrayBtn.Text = xrayActive and "X-Ray: ON" or "X-Ray: OFF"
-    XrayBtn.BackgroundColor3 = xrayActive and Color3.fromRGB(255, 0, 255) or Color3.fromRGB(150, 0, 200)
-    
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and not obj:IsDescendantOf(lp.Character) then
-            if xrayActive then
-                obj.Transparency = 0.5 -- ทำให้ใส
-            else
-                obj.Transparency = 0 -- ทำให้ทึบเหมือนเดิม
-            end
-        end
-    end
 end)
