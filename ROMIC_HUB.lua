@@ -4,7 +4,7 @@ if game.CoreGui:FindFirstChild("Brainrot_GodMode_V12_6") then
 end
 
 -- [[ 2. ส่วนแจ้งเตือนเวอร์ชัน ]]
-local VERSION = "12.7" 
+local VERSION = "1.00" 
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Brainrot GodMode",
     Text = "โหลดเวอร์ชัน " .. VERSION .. " สำเร็จแล้ว!",
