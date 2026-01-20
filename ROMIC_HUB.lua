@@ -1,4 +1,4 @@
--- [[ 1. ส่วนป้องกัน UI ซ้อนกัน (บรรทัดแรกสุด) ]]
+-- [[ 1. ส่วนป้องกัน UI ซ้อนกัน ]]
 if game.CoreGui:FindFirstChild("Brainrot_GodMode_V12_6") then 
     game.CoreGui["Brainrot_GodMode_V12_6"]:Destroy() 
 end
@@ -26,6 +26,7 @@ local ScrollingFrame = Instance.new("ScrollingFrame")
 local NoclipBtn = Instance.new("TextButton")
 local InfJumpBtn = Instance.new("TextButton")
 local FastClickBtn = Instance.new("TextButton")
+local XrayBtn = Instance.new("TextButton")
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -36,7 +37,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "Brainrot_GodMode_V12_6"
 
--- [[ 1. FPS COUNTER ]]
+-- [[ FPS COUNTER ]]
 FPSLabel.Parent = ScreenGui
 FPSLabel.Size = UDim2.new(0, 100, 0, 30)
 FPSLabel.Position = UDim2.new(1, -110, 0, 10)
@@ -48,47 +49,28 @@ RunService.RenderStepped:Connect(function(dt)
     FPSLabel.Text = "FPS: "..math.floor(1/dt)
 end)
 
--- [[ 2. ปุ่ม FLY HOME ]]
+-- [[ SETUP FLOATING BUTTONS (ปุ่มที่ลอยข้างนอก) ]]
 FlyHomeBtn.Parent = ScreenGui
 FlyHomeBtn.Text = "FLY HOME"
 FlyHomeBtn.Size = UDim2.new(0, 110, 0, 50)
 FlyHomeBtn.Position = UDim2.new(0, 10, 0, 150)
 FlyHomeBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+FlyHomeBtn.TextColor3 = Color3.new(1, 1, 1)
 FlyHomeBtn.Draggable = true
 FlyHomeBtn.Active = true
 Instance.new("UICorner", FlyHomeBtn)
 
--- ฟังก์ชั่นการทำงาน (ดึงค่าจาก Box ในเมนูหลักมาใช้)
-local isHovering = false
-SlowFlyBtn.MouseButton1Click:Connect(function()
-    isHovering = not isHovering
-    SlowFlyBtn.Text = isHovering and "Hover: ON" or "Hover: OFF"
-    SlowFlyBtn.BackgroundColor3 = isHovering and Color3.fromRGB(0, 200, 255) or Color3.fromRGB(0, 120, 200)
-    
-    local char = lp.Character
-    local root = char and char:FindFirstChild("HumanoidRootPart")
-    
-    if isHovering and root then
-        local bv = Instance.new("BodyVelocity", root)
-        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        
-        task.spawn(function()
-            while isHovering and root.Parent do
-                -- ดึงค่าความสูงและความเร็วจาก TextBox ใน MainFrame
-                local h = tonumber(HeightBox.Text) or 80
-                local s = tonumber(FlySpeedBox.Text) or 100
-                
-                local yVel = (root.Position.Y < h) and 180 or (root.Position.Y > h+5 and -120 or 0)
-                bv.Velocity = (char.Humanoid.MoveDirection * s) + Vector3.new(0, yVel, 0)
-                task.wait()
-            end
-            if bv then bv:Destroy() end
-        end)
-    end
-end)
+SlowFlyBtn.Parent = ScreenGui
+SlowFlyBtn.Text = "Hover: OFF"
+SlowFlyBtn.Size = UDim2.new(0, 110, 0, 50)
+SlowFlyBtn.Position = UDim2.new(0, 10, 0, 210)
+SlowFlyBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+SlowFlyBtn.TextColor3 = Color3.new(1, 1, 1)
+SlowFlyBtn.Draggable = true
+SlowFlyBtn.Active = true
+Instance.new("UICorner", SlowFlyBtn)
 
-
--- [[ 3. MAIN MENU ]]
+-- [[ MAIN MENU SETUP ]]
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.Size = UDim2.new(0, 230, 0, 380)
@@ -104,11 +86,12 @@ ToggleBtn.Size = UDim2.new(0, 80, 0, 35)
 ToggleBtn.Position = UDim2.new(0, 10, 0, 10)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
 ToggleBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", ToggleBtn)
 
 ScrollingFrame.Parent = MainFrame
 ScrollingFrame.Size = UDim2.new(1, 0, 1, -10)
 ScrollingFrame.BackgroundTransparency = 1
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 1.5, 0)
 ScrollingFrame.ScrollBarThickness = 5
 UIListLayout.Parent = ScrollingFrame
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -131,49 +114,35 @@ local function CreateBox(box, placeholder, default)
     Instance.new("UICorner", box)
 end
 
--- เพิ่มปุ่มระบบใหม่
+-- สร้างปุ่มในเมนู
 CreateBtn(FastClickBtn, "คลิกเดียวเก็บของ (OFF)", Color3.fromRGB(100, 0, 200))
 CreateBtn(SetPointBtn, "บันทึกจุด (Set Point)", Color3.fromRGB(0, 150, 0))
-CreateBtn(SlowFlyBtn, "ลอยตัว (Hover: OFF)", Color3.fromRGB(0, 120, 200))
 CreateBtn(NoclipBtn, "ทะลุกำแพง (OFF)", Color3.fromRGB(80, 80, 80))
 CreateBtn(InfJumpBtn, "กระโดดบนอากาศ (OFF)", Color3.fromRGB(80, 80, 80))
+CreateBtn(XrayBtn, "X-Ray: OFF", Color3.fromRGB(150, 0, 200))
 CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 
--- [[ ฟังก์ชั่นพิเศษ: คลิกเดียวเก็บของ (Instant Proximity) ]]
-local fastClickActive = false
-FastClickBtn.MouseButton1Click:Connect(function()
-    fastClickActive = not fastClickActive
-    FastClickBtn.Text = fastClickActive and "คลิกเดียวเก็บของ (ON)" or "คลิกเดียวเก็บของ (OFF)"
-    FastClickBtn.BackgroundColor3 = fastClickActive and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(100, 0, 200)
-    
-    -- ปรับแต่ง ProximityPrompt ให้ทำงานทันที
-    if fastClickActive then
-        ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
-            if fastClickActive then
-                fireproximityprompt(prompt) -- จำลองการกดจนเสร็จทันที
-            end
-        end)
-    end
-end)
-
--- [[ ระบบบินกลับแบบพุ่งพรวด (วาร์ปดีด) ]]
+-- [[ ฟังก์ชัน FLY HOME ]]
 FlyHomeBtn.MouseButton1Click:Connect(function()
-    if not savedPos then return end
+    if not savedPos then
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "ยังไม่ได้บันทึกจุด!", Duration = 2})
+        return 
+    end
     local char = lp.Character
     local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    local targetHeight = tonumber(HeightBox.Text) or 80
+    local h = tonumber(HeightBox.Text) or 80
     local fSpeed = tonumber(FlySpeedBox.Text) or 250
 
     FlyHomeBtn.Text = "EVADE!"
-    root.Velocity = Vector3.new(0, 350, 0) -- ดีดแรงขึ้น
+    root.Velocity = Vector3.new(0, 300, 0)
     task.wait(0.05)
-    root.CFrame = CFrame.new(root.Position.X, targetHeight, root.Position.Z)
+    root.CFrame = CFrame.new(root.Position.X, h, root.Position.Z)
 
-    local targetAirPos = Vector3.new(savedPos.Position.X, targetHeight, savedPos.Position.Z)
+    local targetAirPos = Vector3.new(savedPos.Position.X, h, savedPos.Position.Z)
     local dist = (root.Position - targetAirPos).Magnitude
     local moveTween = TweenService:Create(root, TweenInfo.new(dist/fSpeed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetAirPos)})
     moveTween:Play()
@@ -183,18 +152,7 @@ FlyHomeBtn.MouseButton1Click:Connect(function()
     FlyHomeBtn.Text = "FLY HOME"
 end)
 
--- [[ แก้ไขส่วนปุ่ม Hover ให้แยกออกมา ]]
-SlowFlyBtn.Parent = ScreenGui -- ย้ายออกจากเมนูหลักมาที่หน้าจอ
-SlowFlyBtn.Text = "Hover: OFF"
-SlowFlyBtn.Size = UDim2.new(0, 110, 0, 50)
-SlowFlyBtn.Position = UDim2.new(0, 10, 0, 210) -- ตำแหน่งใต้ปุ่ม FLY HOME
-SlowFlyBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
-SlowFlyBtn.TextColor3 = Color3.new(1, 1, 1)
-SlowFlyBtn.Draggable = true -- ทำให้ลากปุ่มไปมาได้
-SlowFlyBtn.Active = true
-Instance.new("UICorner", SlowFlyBtn)
-
--- ฟังก์ชั่นการทำงาน (ดึงค่าจาก Box ในเมนูหลักมาใช้)
+-- [[ ฟังก์ชัน HOVER ]]
 local isHovering = false
 SlowFlyBtn.MouseButton1Click:Connect(function()
     isHovering = not isHovering
@@ -209,12 +167,10 @@ SlowFlyBtn.MouseButton1Click:Connect(function()
         bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
         
         task.spawn(function()
-            while isHovering and root.Parent do
-                -- ดึงค่าความสูงและความเร็วจาก TextBox ใน MainFrame
+            while isHovering and root and root.Parent do
                 local h = tonumber(HeightBox.Text) or 80
                 local s = tonumber(FlySpeedBox.Text) or 100
-                
-                local yVel = (root.Position.Y < h) and 180 or (root.Position.Y > h+5 and -120 or 0)
+                local yVel = (root.Position.Y < h) and 150 or (root.Position.Y > h+5 and -100 or 0)
                 bv.Velocity = (char.Humanoid.MoveDirection * s) + Vector3.new(0, yVel, 0)
                 task.wait()
             end
@@ -223,17 +179,9 @@ SlowFlyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- ล็อคความเร็ววิ่ง
-task.spawn(function()
-    while true do
-        task.wait(0.2)
-        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
-            lp.Character.Humanoid.WalkSpeed = tonumber(SpeedBox.Text) or 60
-        end
-    end
-end)
+-- [[ ฟังก์ชันอื่นๆ ]]
+ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
--- บันทึกจุด
 SetPointBtn.MouseButton1Click:Connect(function()
     if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
         savedPos = lp.Character.HumanoidRootPart.CFrame
@@ -243,8 +191,17 @@ SetPointBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- ปุ่มปิดเปิด/Noclip/InfJump
-ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
+local fastClickActive = false
+FastClickBtn.MouseButton1Click:Connect(function()
+    fastClickActive = not fastClickActive
+    FastClickBtn.Text = fastClickActive and "คลิกเดียวเก็บของ (ON)" or "คลิกเดียวเก็บของ (OFF)"
+    FastClickBtn.BackgroundColor3 = fastClickActive and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(100, 0, 200)
+end)
+
+ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+    if fastClickActive then fireproximityprompt(prompt) end
+end)
+
 local noclip = false
 RunService.Stepped:Connect(function()
     if noclip and lp.Character then
@@ -258,13 +215,43 @@ NoclipBtn.MouseButton1Click:Connect(function()
     NoclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
     NoclipBtn.BackgroundColor3 = noclip and Color3.fromRGB(200, 0, 100) or Color3.fromRGB(80, 80, 80)
 end)
-game:GetService("UserInputService").JumpRequest:Connect(function()
-    if InfJumpBtn.Text:find("ON") then
-        lp.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-    end
-end)
+
 InfJumpBtn.MouseButton1Click:Connect(function()
     local active = InfJumpBtn.Text:find("OFF")
     InfJumpBtn.Text = active and "InfJump: ON" or "InfJump: OFF"
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
+end)
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfJumpBtn.Text:find("ON") and lp.Character then
+        lp.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
+
+XrayBtn.MouseButton1Click:Connect(function()
+    local xrayActive = XrayBtn.Text:find("OFF")
+    XrayBtn.Text = xrayActive and "X-Ray: ON" or "X-Ray: OFF"
+    XrayBtn.BackgroundColor3 = xrayActive and Color3.fromRGB(255, 0, 255) or Color3.fromRGB(150, 0, 200)
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and not obj:IsDescendantOf(lp.Character) then
+            if xrayActive then
+                if not obj:FindFirstChild("OriginalTrans") then
+                    local v = Instance.new("NumberValue", obj); v.Name = "OriginalTrans"; v.Value = obj.Transparency
+                end
+                obj.Transparency = 0.5
+            else
+                local v = obj:FindFirstChild("OriginalTrans")
+                obj.Transparency = v and v.Value or 0
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
+            lp.Character.Humanoid.WalkSpeed = tonumber(SpeedBox.Text) or 16
+        end
+    end
 end)
