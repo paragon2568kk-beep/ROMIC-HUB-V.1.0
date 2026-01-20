@@ -262,3 +262,15 @@ XrayBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- [[ บรรทัดที่ 264: ระบบล็อคความเร็ววิ่ง (WalkSpeed) ]]
+task.spawn(function()
+    while task.wait(0.2) do
+        pcall(function()
+            if lp.Character and lp.Character:FindFirstChild("Humanoid") then
+                -- ดึงค่าจากช่อง SpeedBox ที่คุณสร้างไว้ในบรรทัดที่ 142
+                local s = tonumber(SpeedBox.Text) or 16 
+                lp.Character.Humanoid.WalkSpeed = s
+            end
+        end)
+    end
+end)
