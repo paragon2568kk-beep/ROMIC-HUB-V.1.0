@@ -30,6 +30,8 @@ local XrayBtn = Instance.new("TextButton")
 local espEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
+local AntiTouchBtn = Instance.new("TextButton") -- สร้างตัวแปรปุ่มใหม่
+local antiTouchEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -295,36 +297,32 @@ local function ApplyHighlight(char)
     end
 end
 
--- [[ 3. เชื่อมต่อกับปุ่ม XrayBtn ที่มีอยู่แล้ว ]]
 XrayBtn.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled -- สลับสถานะ true/false
+    espEnabled = not espEnabled
+    XrayBtn.Text = espEnabled and "X-Ray & Safety: ON" or "X-Ray & Safety: OFF"
     
-    -- เปลี่ยนข้อความที่ปุ่มเพื่อบอกสถานะ
-    XrayBtn.Text = espEnabled and "เรืองแสง: ON" or "เรืองแสง: OFF"
-    
-    if espEnabled then
-        -- ถ้าเปิด: ใส่แสงให้ทุกคนในเซิร์ฟเวอร์
-        for _, p in pairs(game.Players:GetPlayers()) do
-            if p ~= lp and p.Character then
-                ApplyHighlight(p.Character)
+    -- ลูปจัดการทั้งเรื่อง แสง (Highlight) และ การสัมผัส (Touch)
+    for _, obj in pairs(game.Workspace:GetDescendants()) do
+        -- 1. ส่วนของมองทะลุผู้เล่น
+        if obj:IsA("Model") and game.Players:GetPlayerFromCharacter(obj) then
+            local p = game.Players:GetPlayerFromCharacter(obj)
+            if p ~= lp then
+                if espEnabled then
+                    local h = obj:FindFirstChild("ESPHighlight") or Instance.new("Highlight", obj)
+                    h.Name = "ESPHighlight"
+                    h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                else
+                    if obj:FindFirstChild("ESPHighlight") then obj.ESPHighlight:Destroy() end
+                end
             end
         end
-    else
-        -- ถ้าปิด: ลบแสงออกให้หมด
-        for _, p in pairs(game.Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("ESPHighlight") then
-                p.Character.ESPHighlight:Destroy()
+
+        -- 2. ส่วนของ Disable Touch (ปิดการแตะของที่ทำให้ตาย)
+        if obj:IsA("BasePart") then
+            local name = obj.Name:lower()
+            if name:find("lava") or name:find("kill") or name:find("dead") or name:find("trap") then
+                obj.CanTouch = not espEnabled -- ถ้าเปิดระบบ CanTouch จะเป็น false (แตะไม่โดน)
             end
         end
     end
-end)
-
--- [[ 4. ระบบตรวจจับคนเกิดใหม่ (เพื่อให้แสงไม่หายตอนเขาตาย) ]]
-game.Players.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Connect(function(char)
-        if espEnabled then
-            task.wait(0.5) -- รอตัวละครโหลดเสร็จ
-            ApplyHighlight(char)
-        end
-    end)
 end)
