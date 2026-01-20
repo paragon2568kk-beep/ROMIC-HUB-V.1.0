@@ -1,3 +1,16 @@
+-- [[ 1. ส่วนป้องกัน UI ซ้อนกัน (บรรทัดแรกสุด) ]]
+if game.CoreGui:FindFirstChild("Brainrot_GodMode_V12_6") then 
+    game.CoreGui["Brainrot_GodMode_V12_6"]:Destroy() 
+end
+
+-- [[ 2. ส่วนแจ้งเตือนเวอร์ชัน ]]
+local VERSION = "12.7" 
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Brainrot GodMode",
+    Text = "โหลดเวอร์ชัน " .. VERSION .. " สำเร็จแล้ว!",
+    Duration = 5
+})
+
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local ToggleBtn = Instance.new("TextButton")
