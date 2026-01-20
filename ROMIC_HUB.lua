@@ -26,7 +26,6 @@ local ScrollingFrame = Instance.new("ScrollingFrame")
 local NoclipBtn = Instance.new("TextButton")
 local InfJumpBtn = Instance.new("TextButton")
 local FastClickBtn = Instance.new("TextButton") -- ปุ่มเปิดระบบคลิกเก็บของ
-local AutoClickBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -271,32 +270,3 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
 end)
 
--- [[ ระบบ Auto Collect (เก็บของรอบตัวอัตโนมัติ) ]]
-local autoCollectActive = false
-
-AutoClickBtn.MouseButton1Click:Connect(function()
-    autoCollectActive = not autoCollectActive
-    AutoClickBtn.Text = autoCollectActive and "Auto Collect: ON" or "Auto Collect: OFF"
-    AutoClickBtn.BackgroundColor3 = autoCollectActive and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 100, 0)
-    
-    if autoCollectActive then
-        task.spawn(function()
-            while autoCollectActive do
-                -- วนลูปหา ProximityPrompt ทุกอย่างที่อยู่ในระยะรอบตัว
-                for _, prompt in pairs(game:GetService("ProximityPromptService"):GetDescendants()) do
-                    if prompt:IsA("ProximityPrompt") then
-                        -- ตรวจสอบระยะห่าง (ถ้าอยู่ใกล้พอจะสั่งกดทันที)
-                        local char = lp.Character
-                        if char and char:FindFirstChild("HumanoidRootPart") then
-                            local dist = (char.HumanoidRootPart.Position - prompt.Parent:GetModelCFrame().p).Magnitude
-                            if dist <= (prompt.MaxActivationDistance + 5) then
-                                fireproximityprompt(prompt) -- สั่งให้ปุ่มทำงานทันที
-                            end
-                        end
-                    end
-                end
-                task.wait(0.1) -- ความถี่ในการสแกนหาของรอบตัว
-            end
-        end)
-    end
-end)
