@@ -271,7 +271,7 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
 end)
 
--- [[ ระบบ Auto Clicker เวอร์ชันแก้บั๊กเดินไม่ได้ ]]
+-- [[ ระบบ Auto Clicker สำหรับมือถือ (แก้บั๊กเดินไม่ได้) ]]
 local autoClickActive = false
 local vim = game:GetService("VirtualInputManager")
 
@@ -283,19 +283,16 @@ AutoClickBtn.MouseButton1Click:Connect(function()
     if autoClickActive then
         task.spawn(function()
             while autoClickActive do
-                -- เช็คก่อนว่าตัวละครขยับไหม ถ้าเรากำลังกดเดินอยู่ (MoveDirection > 0) จะให้หยุดคลิกแป๊บนึงเพื่อให้เดินได้
-                if lp.Character and lp.Character:FindFirstChild("Humanoid") and lp.Character.Humanoid.MoveDirection.Magnitude > 0 then
-                    task.wait(0.1)
-                else
-                    -- ถ้าอยู่นิ่งๆ ถึงจะทำการคลิก
-                    local vps = workspace.CurrentCamera.ViewportSize
-                    -- ส่งคำสั่งคลิกแบบ Touch (TouchTap) แทนการส่ง MouseEvent เพื่อลดโอกาสเกิดรูปเมาส์
-                    vim:SendMouseButtonEvent(vps.X / 2, vps.Y / 2, 0, true, game, 0)
-                    task.wait(0.01)
-                    vim:SendMouseButtonEvent(vps.X / 2, vps.Y / 2, 0, false, game, 0)
-                    task.wait(0.1) -- เพิ่มดีเลย์นิดหน่อยเพื่อไม่ให้กินเครื่องเกินไป
-                end
-                task.wait()
+                local vps = workspace.CurrentCamera.ViewportSize
+                local x, y = vps.X / 2, vps.Y / 2
+                
+                -- ใช้ SendTouchEvent แทน MouseEvent เพื่อกันรูปเมาส์ขึ้น
+                -- 0 คือเริ่มจิ้ม, 1 คือจิ้มค้าง/ขยับ, 2 คือปล่อยนิ้ว
+                vim:SendTouchEvent(0, 0, x, y) -- เริ่มจิ้ม
+                task.wait(0.01)
+                vim:SendTouchEvent(0, 2, x, y) -- ปล่อยนิ้ว
+                
+                task.wait(0.05) -- ปรับความเร็วตรงนี้
             end
         end)
     end
