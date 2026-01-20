@@ -271,27 +271,31 @@ InfJumpBtn.MouseButton1Click:Connect(function()
     InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
 end)
 
--- [[ 1. ฟังก์ชัน Auto Clicker สำหรับมือถือ ]]
+-- [[ ระบบ Auto Clicker เวอร์ชันแก้บั๊กเดินไม่ได้ ]]
 local autoClickActive = false
 local vim = game:GetService("VirtualInputManager")
 
 AutoClickBtn.MouseButton1Click:Connect(function()
     autoClickActive = not autoClickActive
-    AutoClickBtn.Text = autoClickActive and "Auto Clicker (ON)" or "Auto Clicker (OFF)"
+    AutoClickBtn.Text = autoClickActive and "Auto Click: ON" or "Auto Click: OFF"
     AutoClickBtn.BackgroundColor3 = autoClickActive and Color3.fromRGB(255, 150, 0) or Color3.fromRGB(200, 100, 0)
     
     if autoClickActive then
         task.spawn(function()
             while autoClickActive do
-                -- หาตำแหน่งกึ่งกลางหน้าจอ
-                local vps = workspace.CurrentCamera.ViewportSize
-                local x, y = vps.X / 2, vps.Y / 2
-                
-                -- จำลองการคลิก
-                vim:SendMouseButtonEvent(x, y, 0, true, game, 0)
-                task.wait(0.01)
-                vim:SendMouseButtonEvent(x, y, 0, false, game, 0)
-                task.wait(0.05) -- ความเร็วการคลิก
+                -- เช็คก่อนว่าตัวละครขยับไหม ถ้าเรากำลังกดเดินอยู่ (MoveDirection > 0) จะให้หยุดคลิกแป๊บนึงเพื่อให้เดินได้
+                if lp.Character and lp.Character:FindFirstChild("Humanoid") and lp.Character.Humanoid.MoveDirection.Magnitude > 0 then
+                    task.wait(0.1)
+                else
+                    -- ถ้าอยู่นิ่งๆ ถึงจะทำการคลิก
+                    local vps = workspace.CurrentCamera.ViewportSize
+                    -- ส่งคำสั่งคลิกแบบ Touch (TouchTap) แทนการส่ง MouseEvent เพื่อลดโอกาสเกิดรูปเมาส์
+                    vim:SendMouseButtonEvent(vps.X / 2, vps.Y / 2, 0, true, game, 0)
+                    task.wait(0.01)
+                    vim:SendMouseButtonEvent(vps.X / 2, vps.Y / 2, 0, false, game, 0)
+                    task.wait(0.1) -- เพิ่มดีเลย์นิดหน่อยเพื่อไม่ให้กินเครื่องเกินไป
+                end
+                task.wait()
             end
         end)
     end
