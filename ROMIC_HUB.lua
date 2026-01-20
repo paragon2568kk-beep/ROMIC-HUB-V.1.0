@@ -1,189 +1,210 @@
--- [[ ROMIC FLING BEAST V.2.1.19 - SMOOTH MOTION EDITION ]]
-if _G.RomicLoaded then 
-    local old = game:GetService("CoreGui"):FindFirstChild("RomicHub")
-    if old then old:Destroy() end
-end
-_G.RomicLoaded = true
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local ToggleBtn = Instance.new("TextButton")
+local FlyHomeBtn = Instance.new("TextButton")
+local SetPointBtn = Instance.new("TextButton")
+local SlowFlyBtn = Instance.new("TextButton")
+local SpeedBox = Instance.new("TextBox")
+local FlySpeedBox = Instance.new("TextBox")
+local HeightBox = Instance.new("TextBox")
+local FPSLabel = Instance.new("TextLabel")
+local UIListLayout = Instance.new("UIListLayout")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local NoclipBtn = Instance.new("TextButton")
+local InfJumpBtn = Instance.new("TextButton")
+local FastClickBtn = Instance.new("TextButton") -- ปุ่มเปิดระบบคลิกเก็บของ
 
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
+local savedPos = nil
+local lp = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
-local SoundService = game:GetService("SoundService")
-local Camera = workspace.CurrentCamera
+local TweenService = game:GetService("TweenService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 
-local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-ScreenGui.Name = "RomicHub"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.DisplayOrder = 9999
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "Brainrot_GodMode_V12_6"
 
-_G.TotalKills = 0
-_G.FlingAll = false
-_G.AntiFlingInstalled = false
-local KnockedList = {} 
+-- [[ 1. FPS COUNTER ]]
+FPSLabel.Parent = ScreenGui
+FPSLabel.Size = UDim2.new(0, 100, 0, 30)
+FPSLabel.Position = UDim2.new(1, -110, 0, 10)
+FPSLabel.BackgroundTransparency = 0.5
+FPSLabel.BackgroundColor3 = Color3.new(0,0,0)
+FPSLabel.TextColor3 = Color3.new(0,1,0)
+FPSLabel.TextSize = 16
+RunService.RenderStepped:Connect(function(dt)
+    FPSLabel.Text = "FPS: "..math.floor(1/dt)
+end)
 
-local MainContainer = Instance.new("Frame", ScreenGui)
-MainContainer.Name = "MainContainer"
-MainContainer.Size = UDim2.new(1, 0, 1, 0)
-MainContainer.BackgroundTransparency = 1
-MainContainer.Visible = false
+-- [[ 2. ปุ่ม FLY HOME ]]
+FlyHomeBtn.Parent = ScreenGui
+FlyHomeBtn.Text = "FLY HOME"
+FlyHomeBtn.Size = UDim2.new(0, 110, 0, 50)
+FlyHomeBtn.Position = UDim2.new(0, 10, 0, 150)
+FlyHomeBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+FlyHomeBtn.Draggable = true
+FlyHomeBtn.Active = true
+Instance.new("UICorner", FlyHomeBtn)
 
--- [[ 🌈 RAINBOW RGB HIGHLIGHT SYSTEM ]]
-local function ApplyHighlight(char)
-    if not char:FindFirstChild("RomicHighlight") then
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "RomicHighlight"
-        highlight.Parent = char
-        highlight.FillTransparency = 0.5
-        highlight.OutlineTransparency = 0
-        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    end
+-- [[ 3. MAIN MENU ]]
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.Size = UDim2.new(0, 230, 0, 380)
+MainFrame.Position = UDim2.new(0.5, -115, 0.5, -190)
+MainFrame.Visible = false
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame)
+
+ToggleBtn.Parent = ScreenGui
+ToggleBtn.Text = "MENU"
+ToggleBtn.Size = UDim2.new(0, 80, 0, 35)
+ToggleBtn.Position = UDim2.new(0, 10, 0, 10)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+ToggleBtn.TextColor3 = Color3.new(1, 1, 1)
+
+ScrollingFrame.Parent = MainFrame
+ScrollingFrame.Size = UDim2.new(1, 0, 1, -10)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+ScrollingFrame.ScrollBarThickness = 5
+UIListLayout.Parent = ScrollingFrame
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.Padding = UDim.new(0, 8)
+
+local function CreateBtn(btn, text, color)
+    btn.Parent = ScrollingFrame
+    btn.Text = text
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", btn)
 end
 
-task.spawn(function()
-    while true do
-        local color = Color3.fromHSV(tick() % 5 / 5, 0.8, 1)
-        for _, p in pairs(Players:GetPlayers()) do
-            if p.Character then
-                ApplyHighlight(p.Character)
-                local h = p.Character:FindFirstChild("RomicHighlight")
-                if h then
-                    h.FillColor = color
-                    h.OutlineColor = color
-                end
-            end
-        end
-        RunService.Heartbeat:Wait()
-    end
-end)
-
--- [[ 🌟 NEON GLOW LOADING SYSTEM ]]
-local function ShowLoading(title, duration, isMain, callback)
-    local LoadBg = Instance.new("Frame", ScreenGui)
-    LoadBg.Size = UDim2.new(1, 0, 1, 0); LoadBg.BackgroundColor3 = Color3.fromRGB(0, 0, 0); LoadBg.BackgroundTransparency = 0.2; LoadBg.ZIndex = 10000
-    local Main = Instance.new("Frame", LoadBg)
-    Main.Size = UDim2.new(0, 400, 0, 140); Main.Position = UDim2.new(0.5, -200, 0.5, -70); Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15); Main.BorderSizePixel = 0; Main.ZIndex = 10001
-    Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 15)
-    local Glow = Instance.new("UIStroke", Main); Glow.Thickness = 4; Glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    local Txt = Instance.new("TextLabel", Main)
-    Txt.Size = UDim2.new(1, 0, 0, 60); Txt.BackgroundTransparency = 1; Txt.Text = title; Txt.TextColor3 = Color3.new(1,1,1); Txt.Font = Enum.Font.Code; Txt.TextSize = 22; Txt.ZIndex = 10002
-    local Bar = Instance.new("Frame", Main)
-    Bar.Size = UDim2.new(0.8, 0, 0, 10); Bar.Position = UDim2.new(0.1, 0, 0.7, 0); Bar.BackgroundColor3 = Color3.fromRGB(30, 30, 30); Bar.ZIndex = 10002
-    Instance.new("UICorner", Bar)
-    local Fill = Instance.new("Frame", Bar)
-    Fill.Size = UDim2.new(0, 0, 1, 0); Fill.ZIndex = 10003; Instance.new("UICorner", Fill)
-    task.spawn(function()
-        local start = tick()
-        while tick() - start < duration do
-            local progress = math.min((tick() - start) / duration, 1)
-            local rainbow = Color3.fromHSV(tick() % 5 / 5, 0.9, 1); Fill.Size = UDim2.new(progress, 0, 1, 0); Fill.BackgroundColor3 = rainbow; Glow.Color = rainbow; Txt.TextColor3 = rainbow
-            RunService.Heartbeat:Wait()
-        end
-        LoadBg:Destroy(); if isMain then MainContainer.Visible = true end; if callback then callback() end
-    end)
+local function CreateBox(box, placeholder, default)
+    box.Parent = ScrollingFrame
+    box.PlaceholderText = placeholder
+    box.Text = default or ""
+    box.Size = UDim2.new(0.9, 0, 0, 35)
+    Instance.new("UICorner", box)
 end
 
--- [[ ⚡ HYPER FLING ENGINE ]]
-local StartBtn; 
-task.spawn(function()
-    while true do
-        local all = Players:GetPlayers()
-        if StartBtn then StartBtn.Text = _G.FlingAll and "⚡ Flinging..." or "🚀 START FLING" end
-        if _G.FlingAll then
-            for _, p in pairs(all) do
-                if not _G.FlingAll then break end
-                if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and not KnockedList[p.Name] then
-                    local tRoot = p.Character.HumanoidRootPart
-                    local myRoot = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-                    if myRoot and tRoot then
-                        local startTime = tick()
-                        repeat
-                            myRoot.CFrame = tRoot.CFrame * CFrame.Angles(math.rad(math.random(-180,180)), math.rad(math.random(-180,180)), math.rad(math.random(-180,180)))
-                            myRoot.Velocity = Vector3.new(999999, 999999, 999999); myRoot.RotVelocity = Vector3.new(999999, 999999, 999999)
-                            if tRoot.Velocity.Magnitude > 100 or not p.Parent then 
-                                if not KnockedList[p.Name] then KnockedList[p.Name] = true; _G.TotalKills = _G.TotalKills + 1 end
-                                break 
-                            end
-                            RunService.Heartbeat:Wait()
-                        until tick() - startTime > 0.6 or not _G.FlingAll
-                    end
-                end
-            end
-            if _G.TotalKills >= (#Players:GetPlayers()-1) and #Players:GetPlayers() > 1 then
-                _G.FlingAll = false; _G.TotalKills = 0; KnockedList = {}
-                local s = Instance.new("Sound", SoundService); s.SoundId = "rbxassetid://170765130"; s.Volume = 3; s:Play()
-            end
-        end
-        RunService.Heartbeat:Wait()
-    end
-end)
+-- เพิ่มปุ่มระบบใหม่
+CreateBtn(FastClickBtn, "คลิกเดียวเก็บของ (OFF)", Color3.fromRGB(100, 0, 200))
+CreateBtn(SetPointBtn, "บันทึกจุด (Set Point)", Color3.fromRGB(0, 150, 0))
+CreateBtn(SlowFlyBtn, "ลอยตัว (Hover: OFF)", Color3.fromRGB(0, 120, 200))
+CreateBtn(NoclipBtn, "ทะลุกำแพง (OFF)", Color3.fromRGB(80, 80, 80))
+CreateBtn(InfJumpBtn, "กระโดดบนอากาศ (OFF)", Color3.fromRGB(80, 80, 80))
+CreateBox(HeightBox, "ระดับความสูง", "80")
+CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
+CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 
--- [[ 👤 SPECTATE UI ]]
-local SpecFrame = Instance.new("Frame", MainContainer); SpecFrame.Size = UDim2.new(0, 160, 0, 250); SpecFrame.Position = UDim2.new(1, -340, 0.5, -125); SpecFrame.BackgroundColor3 = Color3.fromRGB(15,15,15); SpecFrame.Visible = false
-Instance.new("UICorner", SpecFrame); Instance.new("UIStroke", SpecFrame).Color = Color3.new(1,1,1)
-local SpecScroll = Instance.new("ScrollingFrame", SpecFrame); SpecScroll.Size = UDim2.new(1, -10, 1, -70); SpecScroll.Position = UDim2.new(0, 5, 0, 35); SpecScroll.BackgroundTransparency = 1
-Instance.new("UIListLayout", SpecScroll).Padding = UDim.new(0, 5)
-local SpecTitle = Instance.new("TextLabel", SpecFrame); SpecTitle.Size = UDim2.new(1, 0, 0, 30); SpecTitle.Text = "👤 ส่องผู้เล่น"; SpecTitle.TextColor3 = Color3.new(1,1,1); SpecTitle.Font = Enum.Font.Code; SpecTitle.TextSize = 14; SpecTitle.BackgroundTransparency = 1
-
-local function UpdateSpecList()
-    for _, v in pairs(SpecScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
-    for _, p in pairs(Players:GetPlayers()) do
-        local b = Instance.new("TextButton", SpecScroll); b.Size = UDim2.new(1, 0, 0, 25); b.Text = p.DisplayName; b.BackgroundColor3 = Color3.fromRGB(35,35,35); b.TextColor3 = Color3.new(1,1,1); b.TextSize = 12
-        Instance.new("UICorner", b); b.MouseButton1Click:Connect(function() if p.Character and p.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = p.Character.Humanoid end end)
-    end
-end
-local BackBtn = Instance.new("TextButton", SpecFrame); BackBtn.Size = UDim2.new(1, -10, 0, 30); BackBtn.Position = UDim2.new(0, 5, 1, -35); BackBtn.Text = "🏠 Me"; BackBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255); BackBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", BackBtn); BackBtn.MouseButton1Click:Connect(function() if Player.Character and Player.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = Player.Character.Humanoid end end)
-
--- [[ 🔘 MINI UI BUTTONS (Right Side) ]]
-local function CreateBtn(txt, pos, color, callback)
-    local b = Instance.new("TextButton", MainContainer); b.Size = UDim2.new(0, 150, 0, 35); b.Position = pos; b.Text = txt; b.BackgroundColor3 = color; b.TextColor3 = Color3.new(1,1,1); b.Font = Enum.Font.SourceSansBold; b.TextSize = 14; Instance.new("UICorner", b); b.Active = true; b.Draggable = true; b.MouseButton1Click:Connect(callback)
-    return b
-end
-
-StartBtn = CreateBtn("🚀 START FLING", UDim2.new(1, -170, 0.5, -80), Color3.fromRGB(0, 170, 0), function() _G.TotalKills = 0; KnockedList = {}; _G.FlingAll = true end)
-CreateBtn("🛑 STOP / RESET", UDim2.new(1, -170, 0.5, -40), Color3.fromRGB(200, 0, 0), function() _G.FlingAll = false; if Player.Character then Player.Character:BreakJoints() end end)
-local DefBtn; DefBtn = CreateBtn("🛡️ ติดตั้งป้องกัน", UDim2.new(1, -170, 0.5, 0), Color3.fromRGB(100, 0, 200), function()
-    if _G.AntiFlingInstalled then return end
-    ShowLoading("Installing Smooth Defense...", 5, false, function() 
-        _G.AntiFlingInstalled = true; DefBtn.Text = "✅ SMOOTH DEFENSE"; DefBtn.BackgroundColor3 = Color3.fromRGB(50,50,50) 
-    end)
-end)
-
-CreateBtn("👤 ระบบส่อง", UDim2.new(1, -170, 0.5, 40), Color3.fromRGB(60, 60, 60), function() 
-    SpecFrame.Visible = not SpecFrame.Visible; if SpecFrame.Visible then UpdateSpecList() end 
-end)
-
--- [[ 🔄 PHYSICS & VOID RESCUE LOOP ]]
-RunService.Stepped:Connect(function()
-    if Player.Character and _G.FlingAll then
-        Player.Character:FindFirstChildOfClass("Humanoid").PlatformStand = true
-        for _, v in pairs(Player.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    local char = Player.Character
-    local root = char and char:FindFirstChild("HumanoidRootPart")
+-- [[ ฟังก์ชั่นพิเศษ: คลิกเดียวเก็บของ (Instant Proximity) ]]
+local fastClickActive = false
+FastClickBtn.MouseButton1Click:Connect(function()
+    fastClickActive = not fastClickActive
+    FastClickBtn.Text = fastClickActive and "คลิกเดียวเก็บของ (ON)" or "คลิกเดียวเก็บของ (OFF)"
+    FastClickBtn.BackgroundColor3 = fastClickActive and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(100, 0, 200)
     
-    if root then
-        -- ระบบกันตกแมพ (Smooth Void Rescue)
-        local voidLevel = workspace.FallenPartsDestroyHeight + 10
-        if root.Position.Y < voidLevel then
-            root.Velocity = Vector3.new(0, 50, 0) -- ส่งแรงส่งขึ้นเล็กน้อย
-            root.CFrame = CFrame.new(root.Position.X, 250, root.Position.Z)
-        end
-        
-        -- ระบบป้องกันการดีด (Smooth Defense)
-        if _G.AntiFlingInstalled and not _G.FlingAll then
-            -- ล็อคเฉพาะแรงเหวี่ยงที่สูงผิดปกติ (เกิน 75) เพื่อให้การตกปกติไม่สโลว์
-            if root.Velocity.Magnitude > 75 or root.RotVelocity.Magnitude > 75 then
-                root.Velocity = Vector3.new(0, 0, 0)
-                root.RotVelocity = Vector3.new(0, 0, 0)
+    -- ปรับแต่ง ProximityPrompt ให้ทำงานทันที
+    if fastClickActive then
+        ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+            if fastClickActive then
+                fireproximityprompt(prompt) -- จำลองการกดจนเสร็จทันที
             end
+        end)
+    end
+end)
+
+-- [[ ระบบบินกลับแบบพุ่งพรวด (วาร์ปดีด) ]]
+FlyHomeBtn.MouseButton1Click:Connect(function()
+    if not savedPos then return end
+    local char = lp.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local targetHeight = tonumber(HeightBox.Text) or 80
+    local fSpeed = tonumber(FlySpeedBox.Text) or 250
+
+    FlyHomeBtn.Text = "EVADE!"
+    root.Velocity = Vector3.new(0, 350, 0) -- ดีดแรงขึ้น
+    task.wait(0.05)
+    root.CFrame = CFrame.new(root.Position.X, targetHeight, root.Position.Z)
+
+    local targetAirPos = Vector3.new(savedPos.Position.X, targetHeight, savedPos.Position.Z)
+    local dist = (root.Position - targetAirPos).Magnitude
+    local moveTween = TweenService:Create(root, TweenInfo.new(dist/fSpeed, Enum.EasingStyle.Linear), {CFrame = CFrame.new(targetAirPos)})
+    moveTween:Play()
+    moveTween.Completed:Wait()
+
+    root.CFrame = savedPos
+    FlyHomeBtn.Text = "FLY HOME"
+end)
+
+-- [[ ระบบลอยตัว (Hover) ]]
+local isHovering = false
+SlowFlyBtn.MouseButton1Click:Connect(function()
+    isHovering = not isHovering
+    SlowFlyBtn.Text = isHovering and "Hover: ON" or "Hover: OFF"
+    local char = lp.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if isHovering and root then
+        local bv = Instance.new("BodyVelocity", root)
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        task.spawn(function()
+            while isHovering and root.Parent do
+                local h = tonumber(HeightBox.Text) or 80
+                local s = tonumber(FlySpeedBox.Text) or 100
+                local yVel = (root.Position.Y < h) and 180 or (root.Position.Y > h+5 and -120 or 0)
+                bv.Velocity = (char.Humanoid.MoveDirection * s) + Vector3.new(0, yVel, 0)
+                task.wait()
+            end
+            bv:Destroy()
+        end)
+    end
+end)
+
+-- ล็อคความเร็ววิ่ง
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        if lp.Character and lp.Character:FindFirstChild("Humanoid") then
+            lp.Character.Humanoid.WalkSpeed = tonumber(SpeedBox.Text) or 60
         end
     end
 end)
 
-ShowLoading("ROMIC HUB V.2.1.19 - SMOOTH", 3, true)
+-- บันทึกจุด
+SetPointBtn.MouseButton1Click:Connect(function()
+    if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+        savedPos = lp.Character.HumanoidRootPart.CFrame
+        SetPointBtn.Text = "SAVED!"
+        task.wait(0.5)
+        SetPointBtn.Text = "บันทึกจุด (Set Point)"
+    end
+end)
 
+-- ปุ่มปิดเปิด/Noclip/InfJump
+ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
+local noclip = false
+RunService.Stepped:Connect(function()
+    if noclip and lp.Character then
+        for _, v in pairs(lp.Character:GetDescendants()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
+    end
+end)
+NoclipBtn.MouseButton1Click:Connect(function()
+    noclip = not noclip
+    NoclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
+    NoclipBtn.BackgroundColor3 = noclip and Color3.fromRGB(200, 0, 100) or Color3.fromRGB(80, 80, 80)
+end)
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfJumpBtn.Text:find("ON") then
+        lp.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
+InfJumpBtn.MouseButton1Click:Connect(function()
+    local active = InfJumpBtn.Text:find("OFF")
+    InfJumpBtn.Text = active and "InfJump: ON" or "InfJump: OFF"
+    InfJumpBtn.BackgroundColor3 = active and Color3.fromRGB(0, 180, 180) or Color3.fromRGB(80, 80, 80)
+end)
