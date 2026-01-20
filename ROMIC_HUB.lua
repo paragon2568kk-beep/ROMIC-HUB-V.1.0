@@ -26,6 +26,7 @@ local ScrollingFrame = Instance.new("ScrollingFrame")
 local NoclipBtn = Instance.new("TextButton")
 local InfJumpBtn = Instance.new("TextButton")
 local FastClickBtn = Instance.new("TextButton") -- ปุ่มเปิดระบบคลิกเก็บของ
+local AutoClickBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
