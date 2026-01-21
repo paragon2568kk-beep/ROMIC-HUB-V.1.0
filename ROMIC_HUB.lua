@@ -1,30 +1,30 @@
--- [[ บล็อกคำสั่ง Kick จากฝั่ง Client ]]
+-- [[ ส่วนป้องกันการโดนเตะและดักจับ Remote ]]
+local lp = game.Players.LocalPlayer
 local mt = getrawmetatable(game)
-local old = mt.__namecall
+local oldNamecall = mt.__namecall
 setreadonly(mt, false)
+
+-- สร้างตัวแปรเช็คสถานะการบิน (เชื่อมกับปุ่มที่คุณมี)
+local isFlying = false
 
 mt.__namecall = newcclosure(function(self, ...)
     local method = getnamecallmethod()
+    local args = {...}
+    
+    -- ดักจับคำสั่ง Kick
     if tostring(self) == "LocalPlayer" and (method == "Kick" or method == "kick") then
-        warn("เกมพยายามเตะคุณ แต่สคริปต์บล็อกไว้ให้แล้ว!")
+        warn("Blocked Kick Attempt!")
         return nil
     end
-    return old(self, ...)
-end)
-setreadonly(mt, true)
-
--- [[ ระบบป้องกันการโดนเตะออกจากเกม ]]
-local mt = getrawmetatable(game)
-local old = mt.__namecall
-setreadonly(mt, false)
-
-mt.__namecall = newcclosure(function(self, ...)
-    local method = getnamecallmethod()
-    if tostring(self) == "LocalPlayer" and (method == "Kick" or method == "kick") then
-        print("สคริปต์บล็อกการโดนเตะให้แล้ว!")
-        return nil -- สั่งให้คำสั่ง Kick ไร้ผล
+    
+    -- ดักจับการส่งข้อมูลความเร็วที่ผิดปกติ (กัน Anti-Cheat ตรวจเจอตอนบิน)
+    if method == "FireServer" and isFlying then
+        if tostring(self):lower():find("velocity") or tostring(self):lower():find("speed") then
+            return nil
+        end
     end
-    return old(self, ...)
+    
+    return oldNamecall(self, ...)
 end)
 setreadonly(mt, true)
 
