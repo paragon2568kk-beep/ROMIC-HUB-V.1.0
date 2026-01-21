@@ -43,6 +43,9 @@ local espEnabled = false -- ตัวแปรเก็บสถานะ เป
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
 local TpBackBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
+local lagActive = false
+local LagBtn = Instance.new("TextButton") -- ปุ่ม Lag Switch
+local settingsFrame = Instance.new("Frame") -- หน้าต่างตั้งค่าปุ่มแยก
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -371,3 +374,28 @@ TpBackBtn.MouseButton1Click:Connect(function()
         })
     end
 end)
+
+-- [[ ฟังก์ชัน Lag Switch ]]
+local settings = settings or {}
+local network = game:GetService("NetworkClient")
+
+LagBtn.MouseButton1Click:Connect(function()
+    lagActive = not lagActive
+    LagBtn.Text = lagActive and "LAG: ON" or "LAG: OFF"
+    LagBtn.BackgroundColor3 = lagActive and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(50, 50, 50)
+    
+    -- ใช้การเซต Parent ของ Network เพื่อทำให้เน็ตค้าง (Client-side lag)
+    if lagActive then
+        settings.IncomingReplicationLag = 99e9 -- ทำให้เน็ตค้าง
+    else
+        settings.IncomingReplicationLag = 0 -- กลับมาเป็นปกติ
+    end
+end)
+
+-- ตั้งค่าปุ่ม Lag Switch ลอยตัว
+LagBtn.Parent = ScreenGui
+LagBtn.Size = UDim2.new(0, 110, 0, 50)
+LagBtn.Position = UDim2.new(0, 10, 0, 390) -- อยู่ต่อจากปุ่มวาร์ป
+LagBtn.Draggable = true
+LagBtn.Active = true
+Instance.new("UICorner", LagBtn)
