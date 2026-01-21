@@ -212,6 +212,7 @@ LagSwitchBtn_V12.Parent = ScreenGui -- เปลี่ยน ScreenGui เป็
 LagSwitchBtn_V12.Name = "LagSwitchBtn_V12"
 LagSwitchBtn_V12.Text = "LAG: OFF"
 LagSwitchBtn_V12.Size = UDim2.new(0, 110, 0, 50)
+
 -- วางไว้ฝั่งขวา (1, -120) ความสูงที่ 200 (ไม่ตกจอแน่นอน)
 LagSwitchBtn_V12.Position = UDim2.new(1, -120, 0, 200) 
 LagSwitchBtn_V12.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
@@ -292,6 +293,7 @@ RunService.Stepped:Connect(function()
         end
     end
 end)
+
 NoclipBtn.MouseButton1Click:Connect(function()
     noclip = not noclip
     NoclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
