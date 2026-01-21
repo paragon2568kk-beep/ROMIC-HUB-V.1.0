@@ -161,7 +161,6 @@ CreateBtn(XrayBtn, "X-Ray: OFF", Color3.fromRGB(150, 0, 200))
 CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
-
 CreateShowToggle("ปุ่ม FLY", FlyHomeBtn)
 CreateShowToggle("ปุ่ม HOVER", SlowFlyBtn)
 CreateShowToggle("ปุ่ม X-RAY", XrayBtn)
