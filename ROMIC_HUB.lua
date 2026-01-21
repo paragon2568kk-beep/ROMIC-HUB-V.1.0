@@ -113,6 +113,35 @@ UIListLayout.Parent = ScrollingFrame
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIListLayout.Padding = UDim.new(0, 8)
 
+local function CreateBtn(btn, text, color)
+    btn.Parent = ScrollingFrame
+    btn.Text = text
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", btn)
+end
+
+local function CreateBox(box, placeholder, default)
+    box.Parent = ScrollingFrame
+    box.PlaceholderText = placeholder
+    box.Text = default or ""
+    box.Size = UDim2.new(0.9, 0, 0, 35)
+    Instance.new("UICorner", box)
+end
+
+local function CreateShowToggle(text, targetUI)
+    local btn = Instance.new("TextButton")
+    CreateBtn(btn, "แสดง" .. text .. " (OFF)", Color3.fromRGB(150, 50, 50)) 
+    btn.MouseButton1Click:Connect(function()
+        if targetUI then
+            targetUI.Visible = not targetUI.Visible
+            btn.Text = targetUI.Visible and "แสดง" .. text .. " (ON)" or "แสดง" .. text .. " (OFF)"
+            btn.BackgroundColor3 = targetUI.Visible and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
+        end
+    end)
+end
+
 -- สร้างปุ่มในเมนู
 CreateBtn(FastClickBtn, "คลิกเดียวเก็บของ (OFF)", Color3.fromRGB(100, 0, 200))
 CreateBtn(SetPointBtn, "บันทึกจุด (Set Point)", Color3.fromRGB(0, 150, 0))
@@ -353,22 +382,5 @@ TpBackBtn.MouseButton1Click:Connect(function()
             Text = "ยังไม่ได้บันทึกตำแหน่ง!",
             Duration = 2
         })
-    end
-end)
-
--- [[ ฟังก์ชัน Lag Switch ]]
-local settings = settings or {}
-local network = game:GetService("NetworkClient")
-
-LagBtn.MouseButton1Click:Connect(function()
-    lagActive = not lagActive
-    LagBtn.Text = lagActive and "LAG: ON" or "LAG: OFF"
-    LagBtn.BackgroundColor3 = lagActive and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(50, 50, 50)
-    
-    -- ใช้การเซต Parent ของ Network เพื่อทำให้เน็ตค้าง (Client-side lag)
-    if lagActive then
-        settings.IncomingReplicationLag = 99e9 -- ทำให้เน็ตค้าง
-    else
-        settings.IncomingReplicationLag = 0 -- กลับมาเป็นปกติ
     end
 end)
