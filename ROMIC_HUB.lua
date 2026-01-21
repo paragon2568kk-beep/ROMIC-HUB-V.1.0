@@ -142,6 +142,7 @@ CreateBtn(XrayBtn, "X-Ray: OFF", Color3.fromRGB(150, 0, 200))
 CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
+
 -- [[ 1. ฟังก์ชันสร้างปุ่มลอย (ตั้งค่าให้ปิดไว้ตั้งแต่เริ่ม) ]]
 local function CreateFloatingBtn(text, pos, color)
     local btn = Instance.new("TextButton")
