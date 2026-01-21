@@ -60,6 +60,7 @@ local XrayBtn = Instance.new("TextButton")
 local espEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
+local TpBackBtn = Instance.new("TextButton") -- สร้างปุ่มวาร์ปกลับลอยตัว
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -81,6 +82,17 @@ FPSLabel.TextSize = 16
 RunService.RenderStepped:Connect(function(dt)
     FPSLabel.Text = "FPS: "..math.floor(1/dt)
 end)
+
+-- [[ SETUP TP BACK BUTTON (ปุ่มวาร์ปกลับลอยข้างจอ) ]]
+TpBackBtn.Parent = ScreenGui
+TpBackBtn.Text = "TP BACK"
+TpBackBtn.Size = UDim2.new(0, 110, 0, 50)
+TpBackBtn.Position = UDim2.new(0, 10, 0, 270) -- วางไว้ใต้ปุ่ม SlowFly (ขยับตำแหน่ง Y ลงมา)
+TpBackBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 0) -- สีส้มเพื่อให้เด่นแยกจากปุ่มบิน
+TpBackBtn.TextColor3 = Color3.new(1, 1, 1)
+TpBackBtn.Draggable = true
+TpBackBtn.Active = true
+Instance.new("UICorner", TpBackBtn)
 
 -- [[ SETUP FLOATING BUTTONS (ปุ่มที่ลอยข้างนอก) ]]
 FlyHomeBtn.Parent = ScreenGui
@@ -352,5 +364,20 @@ XrayBtn.MouseButton1Click:Connect(function()
                 obj.CanTouch = not espEnabled -- ถ้าเปิดระบบ CanTouch จะเป็น false (แตะไม่โดน)
             end
         end
+    end
+end)
+
+-- ทำให้ปุ่มทำงานเมื่อคลิก
+TpBackBtn.MouseButton1Click:Connect(function()
+    if savedPos and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+        -- วาร์ปกลับไปยังจุดที่เคยบันทึกไว้ในตัวแปร savedPos
+        lp.Character.HumanoidRootPart.CFrame = savedPos
+    else
+        -- ถ้ายังไม่ได้บันทึกจุด ให้แจ้งเตือน
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "System",
+            Text = "ยังไม่ได้บันทึกตำแหน่ง!",
+            Duration = 2
+        })
     end
 end)
