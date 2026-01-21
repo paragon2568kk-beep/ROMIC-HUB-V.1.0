@@ -1,3 +1,33 @@
+-- [[ บล็อกคำสั่ง Kick จากฝั่ง Client ]]
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    if tostring(self) == "LocalPlayer" and (method == "Kick" or method == "kick") then
+        warn("เกมพยายามเตะคุณ แต่สคริปต์บล็อกไว้ให้แล้ว!")
+        return nil
+    end
+    return old(self, ...)
+end)
+setreadonly(mt, true)
+
+-- [[ ระบบป้องกันการโดนเตะออกจากเกม ]]
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    if tostring(self) == "LocalPlayer" and (method == "Kick" or method == "kick") then
+        print("สคริปต์บล็อกการโดนเตะให้แล้ว!")
+        return nil -- สั่งให้คำสั่ง Kick ไร้ผล
+    end
+    return old(self, ...)
+end)
+setreadonly(mt, true)
+
 -- [[ 1. ส่วนป้องกัน UI ซ้อนกัน ]]
 if game.CoreGui:FindFirstChild("Brainrot_GodMode_V12_6") then 
     game.CoreGui["Brainrot_GodMode_V12_6"]:Destroy() 
