@@ -143,6 +143,35 @@ CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 
+-- [[ ส่วนจัดการ การซ่อน/โชว์ ปุ่มลอยบนหน้าจอ ]]
+local ShowFlyBtn = Instance.new("TextButton")
+local ShowXrayBtn = Instance.new("TextButton")
+local ShowTpBtn = Instance.new("TextButton") -- ปุ่มคุม TP BACK
+local ShowLagBtn = Instance.new("TextButton")
+
+-- สร้างปุ่มลงใน ScrollingFrame ของเมนูหลัก
+CreateBtn(ShowFlyBtn, "แสดงปุ่ม FLY (ON)", Color3.fromRGB(50, 50, 50))
+CreateBtn(ShowXrayBtn, "แสดงปุ่ม X-RAY (ON)", Color3.fromRGB(50, 50, 50))
+CreateBtn(ShowTpBtn, "แสดงปุ่ม TP BACK (ON)", Color3.fromRGB(50, 50, 50))
+CreateBtn(ShowLagBtn, "แสดงปุ่ม LAG (ON)", Color3.fromRGB(50, 50, 50))
+
+-- ฟังก์ชันคุมการ ซ่อน/โชว์
+local function SetupToggle(btn, targetUI, text)
+    btn.MouseButton1Click:Connect(function()
+        if targetUI then
+            targetUI.Visible = not targetUI.Visible
+            btn.Text = targetUI.Visible and "แสดง" .. text .. " (ON)" or "แสดง" .. text .. " (OFF)"
+            btn.BackgroundColor3 = targetUI.Visible and Color3.fromRGB(50, 50, 50) or Color3.fromRGB(150, 50, 50)
+        end
+    end)
+end
+
+-- เชื่อมคำสั่ง (ตรวจสอบชื่อตัวแปรให้ตรงกับที่คุณตั้งไว้ด้านบน)
+SetupToggle(ShowFlyBtn, FlyHomeBtn, "ปุ่ม FLY")
+SetupToggle(ShowXrayBtn, XrayBtn, "ปุ่ม X-RAY")
+SetupToggle(ShowTpBtn, TpBackBtn, "ปุ่ม TP BACK")
+SetupToggle(ShowLagBtn, LagBtn, "ปุ่ม LAG")
+
 -- [[ ฟังก์ชัน FLY HOME ]]
 FlyHomeBtn.MouseButton1Click:Connect(function()
     if not savedPos then
