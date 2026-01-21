@@ -142,13 +142,6 @@ CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 
--- เพิ่มปุ่มคุมในเมนู (เลื่อนลงไปดูใน MENU จะเจอพวกนี้)
-CreateToggleShowBtn("ปุ่ม FLY", FlyHomeBtn)
-CreateToggleShowBtn("ปุ่ม HOVER", SlowFlyBtn)
-CreateToggleShowBtn("ปุ่ม X-RAY", XrayBtn)
-CreateToggleShowBtn("ปุ่ม TP BACK", TpBackBtn)
-CreateToggleShowBtn("ปุ่ม LAG", LagBtn)
-
 local function CreateToggleShowBtn(text, targetUI)
     local btn = Instance.new("TextButton")
     CreateBtn(btn, "แสดง" .. text .. " (OFF)", Color3.fromRGB(150, 50, 50)) 
