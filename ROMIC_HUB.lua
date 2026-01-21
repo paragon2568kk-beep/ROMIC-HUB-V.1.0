@@ -122,6 +122,19 @@ local function CreateBtn(btn, text, color)
     Instance.new("UICorner", btn)
 end
 
+local function CreateToggleShowBtn(text, targetUI)
+    local btn = Instance.new("TextButton")
+    CreateBtn(btn, "แสดง" .. text .. " (OFF)", Color3.fromRGB(150, 50, 50)) 
+    
+    btn.MouseButton1Click:Connect(function()
+        if targetUI then
+            targetUI.Visible = not targetUI.Visible
+            btn.Text = targetUI.Visible and "แสดง" .. text .. " (ON)" or "แสดง" .. text .. " (OFF)"
+            btn.BackgroundColor3 = targetUI.Visible and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
+        end
+    end)
+end
+
 local function CreateBox(box, placeholder, default)
     box.Parent = ScrollingFrame
     box.PlaceholderText = placeholder
