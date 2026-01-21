@@ -43,9 +43,8 @@ local espEnabled = false -- ตัวแปรเก็บสถานะ เป
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
 local TpBackBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
-local lagActive = false
-local LagBtn = Instance.new("TextButton") -- ปุ่ม Lag Switch
-local settingsFrame = Instance.new("Frame") -- หน้าต่างตั้งค่าปุ่มแยก
+local isLagActive_V12 = false 
+local LagSwitchBtn_V12 = Instance.new("TextButton")
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -55,6 +54,30 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "Brainrot_GodMode_V12_6"
+LagSwitchBtn_V12.Parent = ScreenGui -- เปลี่ยน ScreenGui เป็นชื่อตัวแปร GUI ของคุณ
+LagSwitchBtn_V12.Name = "LagSwitchBtn_V12"
+LagSwitchBtn_V12.Text = "LAG: OFF"
+LagSwitchBtn_V12.Size = UDim2.new(0, 110, 0, 50)
+
+-- ย้ายไปฝั่งขวา (1, -120) และความสูงระดับสายตา (0, 200)
+LagSwitchBtn_V12.Position = UDim2.new(1, -120, 0, 200) 
+LagSwitchBtn_V12.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+LagSwitchBtn_V12.TextColor3 = Color3.new(1, 1, 1)
+LagSwitchBtn_V12.Draggable = true
+LagSwitchBtn_V12.Active = true
+LagSwitchBtn_V12.Visible = false -- ปิดไว้ตอนเริ่มตามคำขอ
+Instance.new("UICorner", LagSwitchBtn_V12)
+
+-- ฟังก์ชันการทำงานของ Lag Switch
+LagSwitchBtn_V12.MouseButton1Click:Connect(function()
+    isLagActive_V12 = not isLagActive_V12
+    LagSwitchBtn_V12.Text = isLagActive_V12 and "LAG: ON" or "LAG: OFF"
+    LagSwitchBtn_V12.BackgroundColor3 = isLagActive_V12 and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(45, 45, 45)
+    
+    pcall(function()
+        settings().Network.IncomingReplicationLag = isLagActive_V12 and 1000 or 0
+    end)
+end)
 
 -- [[ FPS COUNTER ]]
 FPSLabel.Parent = ScreenGui
@@ -143,47 +166,6 @@ CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 
--- [[ 1. ฟังก์ชันสร้างปุ่มลอย (ตั้งค่าให้ปิดไว้ตั้งแต่เริ่ม) ]]
-local function CreateFloatingBtn(text, pos, color)
-    local btn = Instance.new("TextButton")
-    btn.Parent = ScreenGui
-    btn.Text = text
-    btn.Size = UDim2.new(0, 110, 0, 50)
-    btn.Position = pos
-    btn.BackgroundColor3 = color
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Draggable = true
-    btn.Active = true
-    btn.Visible = false -- *** แก้เป็น false เพื่อปิดไว้ตอนเริ่ม ***
-    Instance.new("UICorner", btn)
-    return btn
-end
-
--- [[ 2. สร้างปุ่ม LAG (ปิดไว้ตอนเริ่มเช่นกัน) ]]
-local lagActive = false
-local LagBtn = CreateFloatingBtn("LAG: OFF", UDim2.new(0, 10, 0, 390), Color3.fromRGB(50, 50, 50))
-
--- [[ 3. ปรับสถานะปุ่มอื่นๆ ที่มีอยู่แล้วให้ปิดด้วย ]]
-FlyHomeBtn.Visible = false
-SlowFlyBtn.Visible = false
-XrayBtn.Visible = false
-TpBackBtn.Visible = false
-
--- [[ 4. ฟังก์ชันในเมนูหลัก (แสดงสถานะ OFF ตอนเริ่ม) ]]
-local function CreateToggleShowBtn(text, targetUI)
-    local btn = Instance.new("TextButton")
-    -- ตั้งค่าข้อความเริ่มต้นเป็น (OFF) และสีเข้ม เพราะปุ่มถูกปิดอยู่
-    CreateBtn(btn, "แสดง" .. text .. " (OFF)", Color3.fromRGB(150, 50, 50)) 
-    
-    btn.MouseButton1Click:Connect(function()
-        if targetUI then
-            targetUI.Visible = not targetUI.Visible
-            btn.Text = targetUI.Visible and "แสดง" .. text .. " (ON)" or "แสดง" .. text .. " (OFF)"
-            btn.BackgroundColor3 = targetUI.Visible and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
-        end
-    end)
-end
-
 -- เพิ่มปุ่มคุมในเมนู (เลื่อนลงไปดูใน MENU จะเจอพวกนี้)
 CreateToggleShowBtn("ปุ่ม FLY", FlyHomeBtn)
 CreateToggleShowBtn("ปุ่ม HOVER", SlowFlyBtn)
@@ -249,37 +231,32 @@ TpBackBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- [[ 1. สร้างปุ่ม LAG ให้เรียบร้อยก่อน (ย้ายมาวางตรงนี้) ]]
-local LagBtn = Instance.new("TextButton")
-LagBtn.Parent = ScreenGui -- ต้องใส่ Parent ทันที
-LagBtn.Name = "LagButton"
-LagBtn.Text = "LAG: OFF"
-LagBtn.Size = UDim2.new(0, 110, 0, 50)
-LagBtn.Position = UDim2.new(0, 10, 0, 390) -- พิกัด 390
-LagBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-LagBtn.TextColor3 = Color3.new(1, 1, 1)
-LagBtn.Draggable = true
-LagBtn.Active = true
-LagBtn.Visible = true -- บังคับให้มองเห็นตอนเริ่ม
-Instance.new("UICorner", LagBtn)
+-- [[สร้างปุ่ม LAG ฝั่งขวา]]
+LagSwitchBtn_V12.Parent = ScreenGui -- เปลี่ยน ScreenGui เป็นชื่อตัวแปร GUI ของคุณ
+LagSwitchBtn_V12.Name = "LagSwitchBtn_V12"
+LagSwitchBtn_V12.Text = "LAG: OFF"
+LagSwitchBtn_V12.Size = UDim2.new(0, 110, 0, 50)
+-- วางไว้ฝั่งขวา (1, -120) ความสูงที่ 200 (ไม่ตกจอแน่นอน)
+LagSwitchBtn_V12.Position = UDim2.new(1, -120, 0, 200) 
+LagSwitchBtn_V12.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+LagSwitchBtn_V12.TextColor3 = Color3.new(1, 1, 1)
+LagSwitchBtn_V12.Draggable = true
+LagSwitchBtn_V12.Active = true
+LagSwitchBtn_V12.Visible = true -- ตั้งเป็น true ไว้ก่อนเพื่อให้ปุ่มขึ้นทันทีที่รัน
+Instance.new("UICorner", LagSwitchBtn_V12)
 
--- [[ 2. ฟังก์ชันการทำงานของ LAG ]]
-local lagSettings = settings or {} -- ใช้ชื่อตัวแปรที่เลี่ยงการซ้ำ
-LagBtn.MouseButton1Click:Connect(function()
-    lagActive = not lagActive
-    LagBtn.Text = lagActive and "LAG: ON" or "LAG: OFF"
-    LagBtn.BackgroundColor3 = lagActive and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(50, 50, 50)
+-- [[ระบบทำงานของ LAG Switch]]
+LagSwitchBtn_V12.MouseButton1Click:Connect(function()
+    isLagActive_V12 = not isLagActive_V12
+    LagSwitchBtn_V12.Text = isLagActive_V12 and "LAG: ON" or "LAG: OFF"
+    -- เปลี่ยนเป็นสีแดงเวลาเปิดใช้งาน
+    LagSwitchBtn_V12.BackgroundColor3 = isLagActive_V12 and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(45, 45, 45)
     
-    if lagActive then
-        settings().Network.IncomingReplicationLag = 1000 -- ปรับให้เน็ตค้าง
-    else
-        settings().Network.IncomingReplicationLag = 0 -- กลับเป็นปกติ
-    end
+    pcall(function()
+        -- ถ้า ON จะปรับเน็ตค้างไปที่ 1000 (คนอื่นจะหยุดเดิน)
+        settings().Network.IncomingReplicationLag = isLagActive_V12 and 1000 or 0
+    end)
 end)
-
--- [[ 3. ส่วนในเมนู (เช็คให้แน่ใจว่าเรียกใช้ตัวแปร LagBtn ถูกต้อง) ]]
--- ตรวจสอบใน SetupToggle ของคุณว่ามีบรรทัดนี้ไหม:
--- SetupToggle(ShowLagBtn, LagBtn, "ปุ่ม LAG")
 
 -- [[ ฟังก์ชัน HOVER ]]
 local isHovering = false
