@@ -155,6 +155,13 @@ local function CreateToggleShowBtn(text, targetUI)
     end)
 end
 
+-- เพิ่มปุ่มคุมในเมนู (เลื่อนลงไปดูใน MENU จะเจอพวกนี้)
+CreateToggleShowBtn("ปุ่ม FLY", FlyHomeBtn)
+Create ToggleShowBtn ("ปุ่ม HOVER", SlowFlyBtn)
+CreateToggleShowBtn ("ปุ่ม X-RAY", XrayBtn)
+CreateToggleShowBtn ("ปุ่ม TP BACK", TpBackBtn)
+Create ToggleShowBtn ("ปุ่ม LAG", LagBtn)
+
 -- [[ ฟังก์ชัน FLY HOME ]]
 FlyHomeBtn.MouseButton1Click:Connect(function()
     if not savedPos then
