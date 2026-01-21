@@ -54,30 +54,6 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "Brainrot_GodMode_V12_6"
-LagSwitchBtn_V12.Parent = ScreenGui -- เปลี่ยน ScreenGui เป็นชื่อตัวแปร GUI ของคุณ
-LagSwitchBtn_V12.Name = "LagSwitchBtn_V12"
-LagSwitchBtn_V12.Text = "LAG: OFF"
-LagSwitchBtn_V12.Size = UDim2.new(0, 110, 0, 50)
-
--- ย้ายไปฝั่งขวา (1, -120) และความสูงระดับสายตา (0, 200)
-LagSwitchBtn_V12.Position = UDim2.new(1, -120, 0, 200) 
-LagSwitchBtn_V12.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-LagSwitchBtn_V12.TextColor3 = Color3.new(1, 1, 1)
-LagSwitchBtn_V12.Draggable = true
-LagSwitchBtn_V12.Active = true
-LagSwitchBtn_V12.Visible = false -- ปิดไว้ตอนเริ่มตามคำขอ
-Instance.new("UICorner", LagSwitchBtn_V12)
-
--- ฟังก์ชันการทำงานของ Lag Switch
-LagSwitchBtn_V12.MouseButton1Click:Connect(function()
-    isLagActive_V12 = not isLagActive_V12
-    LagSwitchBtn_V12.Text = isLagActive_V12 and "LAG: ON" or "LAG: OFF"
-    LagSwitchBtn_V12.BackgroundColor3 = isLagActive_V12 and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(45, 45, 45)
-    
-    pcall(function()
-        settings().Network.IncomingReplicationLag = isLagActive_V12 and 1000 or 0
-    end)
-end)
 
 -- [[ FPS COUNTER ]]
 FPSLabel.Parent = ScreenGui
@@ -448,11 +424,3 @@ LagBtn.MouseButton1Click:Connect(function()
         settings.IncomingReplicationLag = 0 -- กลับมาเป็นปกติ
     end
 end)
-
--- ตั้งค่าปุ่ม Lag Switch ลอยตัว
-LagBtn.Parent = ScreenGui
-LagBtn.Size = UDim2.new(0, 110, 0, 50)
-LagBtn.Position = UDim2.new(0, 10, 0, 390) -- อยู่ต่อจากปุ่มวาร์ป
-LagBtn.Draggable = true
-LagBtn.Active = true
-Instance.new("UICorner", LagBtn)
