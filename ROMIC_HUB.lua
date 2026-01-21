@@ -1,30 +1,12 @@
--- [[ ส่วนป้องกันการโดนเตะและดักจับ Remote ]]
-local lp = game.Players.LocalPlayer
+-- [[ ANTI-KICK BYPASS ]]
 local mt = getrawmetatable(game)
-local oldNamecall = mt.__namecall
+local old = mt.__namecall
 setreadonly(mt, false)
-
--- สร้างตัวแปรเช็คสถานะการบิน (เชื่อมกับปุ่มที่คุณมี)
-local isFlying = false
-
 mt.__namecall = newcclosure(function(self, ...)
-    local method = getnamecallmethod()
-    local args = {...}
-    
-    -- ดักจับคำสั่ง Kick
-    if tostring(self) == "LocalPlayer" and (method == "Kick" or method == "kick") then
-        warn("Blocked Kick Attempt!")
+    if tostring(self) == "LocalPlayer" and (getnamecallmethod() == "Kick" or getnamecallmethod() == "kick") then
         return nil
     end
-    
-    -- ดักจับการส่งข้อมูลความเร็วที่ผิดปกติ (กัน Anti-Cheat ตรวจเจอตอนบิน)
-    if method == "FireServer" and isFlying then
-        if tostring(self):lower():find("velocity") or tostring(self):lower():find("speed") then
-            return nil
-        end
-    end
-    
-    return oldNamecall(self, ...)
+    return old(self, ...)
 end)
 setreadonly(mt, true)
 
@@ -60,7 +42,7 @@ local XrayBtn = Instance.new("TextButton")
 local espEnabled = false -- ตัวแปรเก็บสถานะ เปิด/ปิด
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
-local TpBackBtn = Instance.new("TextButton") -- สร้างปุ่มวาร์ปกลับลอยตัว
+local TpBackBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -82,17 +64,6 @@ FPSLabel.TextSize = 16
 RunService.RenderStepped:Connect(function(dt)
     FPSLabel.Text = "FPS: "..math.floor(1/dt)
 end)
-
--- [[ SETUP TP BACK BUTTON (ปุ่มวาร์ปกลับลอยข้างจอ) ]]
-TpBackBtn.Parent = ScreenGui
-TpBackBtn.Text = "TP BACK"
-TpBackBtn.Size = UDim2.new(0, 110, 0, 50)
-TpBackBtn.Position = UDim2.new(0, 10, 0, 270) -- วางไว้ใต้ปุ่ม SlowFly (ขยับตำแหน่ง Y ลงมา)
-TpBackBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 0) -- สีส้มเพื่อให้เด่นแยกจากปุ่มบิน
-TpBackBtn.TextColor3 = Color3.new(1, 1, 1)
-TpBackBtn.Draggable = true
-TpBackBtn.Active = true
-Instance.new("UICorner", TpBackBtn)
 
 -- [[ SETUP FLOATING BUTTONS (ปุ่มที่ลอยข้างนอก) ]]
 FlyHomeBtn.Parent = ScreenGui
@@ -207,6 +178,25 @@ XrayBtn.TextColor3 = Color3.new(1, 1, 1)
 XrayBtn.Draggable = true -- สำคัญ: ทำให้ลากปุ่มไปมาได้บนมือถือ
 XrayBtn.Active = true
 Instance.new("UICorner", XrayBtn)
+
+-- [[ SETUP TP BACK BUTTON ]]
+TpBackBtn.Parent = ScreenGui
+TpBackBtn.Text = "TP BACK"
+TpBackBtn.Size = UDim2.new(0, 110, 0, 50)
+TpBackBtn.Position = UDim2.new(0, 10, 0, 330) -- อยู่ใต้ X-Ray
+TpBackBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
+TpBackBtn.TextColor3 = Color3.new(1, 1, 1)
+TpBackBtn.Draggable = true
+TpBackBtn.Active = true
+Instance.new("UICorner", TpBackBtn)
+
+TpBackBtn.MouseButton1Click:Connect(function()
+    if savedPos and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+        lp.Character.HumanoidRootPart.CFrame = savedPos
+    else
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "ยังไม่มีจุดวาร์ปกลับ!", Duration = 2})
+    end
+end)
 
 -- [[ ฟังก์ชัน HOVER ]]
 local isHovering = false
