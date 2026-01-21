@@ -43,8 +43,6 @@ local espEnabled = false -- ตัวแปรเก็บสถานะ เป
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
 local TpBackBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
-local isLagActive_V12 = false 
-local LagSwitchBtn_V12 = Instance.new("TextButton")
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -142,13 +140,6 @@ CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
 
--- เพิ่มปุ่มคุมในเมนู (เลื่อนลงไปดูใน MENU จะเจอพวกนี้)
-CreateToggleShowBtn("ปุ่ม FLY", FlyHomeBtn)
-CreateToggleShowBtn("ปุ่ม HOVER", SlowFlyBtn)
-CreateToggleShowBtn("ปุ่ม X-RAY", XrayBtn)
-CreateToggleShowBtn("ปุ่ม TP BACK", TpBackBtn)
-CreateToggleShowBtn("ปุ่ม LAG", LagBtn)
-
 -- [[ ฟังก์ชัน FLY HOME ]]
 FlyHomeBtn.MouseButton1Click:Connect(function()
     if not savedPos then
@@ -205,34 +196,6 @@ TpBackBtn.MouseButton1Click:Connect(function()
     else
         game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Error", Text = "ยังไม่มีจุดวาร์ปกลับ!", Duration = 2})
     end
-end)
-
--- [[สร้างปุ่ม LAG ฝั่งขวา]]
-LagSwitchBtn_V12.Parent = ScreenGui -- เปลี่ยน ScreenGui เป็นชื่อตัวแปร GUI ของคุณ
-LagSwitchBtn_V12.Name = "LagSwitchBtn_V12"
-LagSwitchBtn_V12.Text = "LAG: OFF"
-LagSwitchBtn_V12.Size = UDim2.new(0, 110, 0, 50)
-
--- วางไว้ฝั่งขวา (1, -120) ความสูงที่ 200 (ไม่ตกจอแน่นอน)
-LagSwitchBtn_V12.Position = UDim2.new(1, -120, 0, 200) 
-LagSwitchBtn_V12.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-LagSwitchBtn_V12.TextColor3 = Color3.new(1, 1, 1)
-LagSwitchBtn_V12.Draggable = true
-LagSwitchBtn_V12.Active = true
-LagSwitchBtn_V12.Visible = true -- ตั้งเป็น true ไว้ก่อนเพื่อให้ปุ่มขึ้นทันทีที่รัน
-Instance.new("UICorner", LagSwitchBtn_V12)
-
--- [[ระบบทำงานของ LAG Switch]]
-LagSwitchBtn_V12.MouseButton1Click:Connect(function()
-    isLagActive_V12 = not isLagActive_V12
-    LagSwitchBtn_V12.Text = isLagActive_V12 and "LAG: ON" or "LAG: OFF"
-    -- เปลี่ยนเป็นสีแดงเวลาเปิดใช้งาน
-    LagSwitchBtn_V12.BackgroundColor3 = isLagActive_V12 and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(45, 45, 45)
-    
-    pcall(function()
-        -- ถ้า ON จะปรับเน็ตค้างไปที่ 1000 (คนอื่นจะหยุดเดิน)
-        settings().Network.IncomingReplicationLag = isLagActive_V12 and 1000 or 0
-    end)
 end)
 
 -- [[ ฟังก์ชัน HOVER ]]
