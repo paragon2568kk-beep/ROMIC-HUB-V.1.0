@@ -43,8 +43,6 @@ local espEnabled = false -- ตัวแปรเก็บสถานะ เป
 local lp = game.Players.LocalPlayer -- ตัวแปรแทนตัวเรา
 local RunService = game:GetService("RunService") -- ใช้สำหรับอัปเดตตำแหน่งเรืองแสง
 local TpBackBtn = Instance.new("TextButton") -- เพิ่มบรรทัดนี้
-local isLagActive_V12 = false 
-local LagBtn_V12 = Instance.new("TextButton") -- ตัวแปรปุ่มลอยหน้าจอ
 
 local savedPos = nil
 local lp = game.Players.LocalPlayer
@@ -54,30 +52,6 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "Brainrot_GodMode_V12_6"
-
-LagBtn_V12.Parent = ScreenGui -- เปลี่ยน ScreenGui เป็นชื่อตัวแปร GUI ของคุณ
-LagBtn_V12.Name = "LagBtn_V12"
-LagBtn_V12.Text = "LAG: OFF"
-LagBtn_V12.Size = UDim2.new(0, 110, 0, 50)
--- ตำแหน่ง: ฝั่งขวา (1, -120), ความสูง (0, 200)
-LagBtn_V12.Position = UDim2.new(1, -120, 0, 200) 
-LagBtn_V12.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-LagBtn_V12.TextColor3 = Color3.new(1, 1, 1)
-LagBtn_V12.Draggable = true
-LagBtn_V12.Active = true
-LagBtn_V12.Visible = false -- ปิดไว้ก่อนตอนเริ่ม
-Instance.new("UICorner", LagBtn_V12)
-
--- ระบบทำงาน Lag Switch
-LagBtn_V12.MouseButton1Click:Connect(function()
-    isLagActive_V12 = not isLagActive_V12
-    LagBtn_V12.Text = isLagActive_V12 and "LAG: ON" or "LAG: OFF"
-    LagBtn_V12.BackgroundColor3 = isLagActive_V12 and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(45, 45, 45)
-    
-    pcall(function()
-        settings().Network.IncomingReplicationLag = isLagActive_V12 and 1000 or 0
-    end)
-end)
 
 -- [[ FPS COUNTER ]]
 FPSLabel.Parent = ScreenGui
@@ -139,19 +113,6 @@ UIListLayout.Parent = ScrollingFrame
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIListLayout.Padding = UDim.new(0, 8)
 
-local function CreateShowToggle(text, targetUI)
-    local btn = Instance.new("TextButton")
-    CreateBtn(btn, "แสดง" .. text .. " (OFF)", Color3.fromRGB(150, 50, 50)) 
-    
-    btn.MouseButton1Click:Connect(function()
-        if targetUI then
-            targetUI.Visible = not targetUI.Visible
-            btn.Text = targetUI.Visible and "แสดง" .. text .. " (ON)" or "แสดง" .. text .. " (OFF)"
-            btn.BackgroundColor3 = targetUI.Visible and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
-        end
-    end)
-end
-
 -- สร้างปุ่มในเมนู
 CreateBtn(FastClickBtn, "คลิกเดียวเก็บของ (OFF)", Color3.fromRGB(100, 0, 200))
 CreateBtn(SetPointBtn, "บันทึกจุด (Set Point)", Color3.fromRGB(0, 150, 0))
@@ -161,11 +122,6 @@ CreateBtn(XrayBtn, "X-Ray: OFF", Color3.fromRGB(150, 0, 200))
 CreateBox(HeightBox, "ระดับความสูง", "80")
 CreateBox(SpeedBox, "ล็อควิ่งเร็ว", "60")
 CreateBox(FlySpeedBox, "ความเร็วบินกลับ", "250")
-CreateShowToggle("ปุ่ม FLY", FlyHomeBtn)
-CreateShowToggle("ปุ่ม HOVER", SlowFlyBtn)
-CreateShowToggle("ปุ่ม X-RAY", XrayBtn)
-CreateShowToggle("ปุ่ม TP BACK", TpBackBtn)
-CreateShowToggle("ปุ่ม LAG", LagBtn_V12)
 
 -- [[ ฟังก์ชัน FLY HOME ]]
 FlyHomeBtn.MouseButton1Click:Connect(function()
